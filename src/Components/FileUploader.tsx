@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {
     Button,
     Modal,
@@ -10,8 +10,15 @@ import {
     Input,
     useDisclosure
 } from "@chakra-ui/react";
+import { useCSVReader } from 'react-papaparse';
 
-const FileUploader = () =>{
+interface  FileUploaderProps {
+    setCol: (value: string[])=> {};
+    setVal: (value: string[][])=>{};
+}
+
+const FileUploader = (props: FileUploaderProps) => {
+    const { CSVReader } = useCSVReader();
     const OverlayBody = () => (
         <ModalOverlay
             bg='none'
@@ -41,10 +48,35 @@ const FileUploader = () =>{
                     <ModalHeader>Upload CSV file</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <Input
-                            placeholder="Select Date and Time"
-                            size="md"
-                            type="file"/>
+                        <CSVReader
+                            onUploadAccepted={(results: any) => {
+                                const value: string[][] = results.data;
+                                const filtered = value.filter((_, i) => i !== 0);
+                                props.setCol(value[0]);
+                                props.setVal(filtered);
+                                onClose();
+                            }}
+                            noDrag>
+                            {({
+                                  getRootProps,
+                                  acceptedFile,
+                                  ProgressBar,
+                                  getRemoveFileProps,
+                                  Remove,
+                              }: any) => (
+                                <>
+                                    <div {...getRootProps()}>
+                                        {acceptedFile ? (
+                                            <>
+                                                <div></div>
+                                            </>
+                                        ) : (
+                                            <Button>Upload</Button>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </CSVReader>
                     </ModalBody>
                     <ModalFooter>
                         <Button onClick={onClose}>Close</Button>
