@@ -34,7 +34,7 @@ const FileUploader = (props: FileUploaderProps) => {
     return (
         <>
             <Button
-                ml='4'
+                m='4'
                 onClick={() => {
                     setOverlay(<OverlayBody />)
                     onOpen()

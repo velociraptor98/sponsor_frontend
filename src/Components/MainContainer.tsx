@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {Card} from "@chakra-ui/react";
 import FileUploader from "./FileUploader";
+import SponsorTable from "./SponsorTable";
 const MainContainer = () =>{
     const [view,setView] = useState("upload")
     const [col, setCol] = useState<string[]>([]);
@@ -19,7 +20,12 @@ const MainContainer = () =>{
             <FileUploader
             setCol={setColumn}
             setVal={setValue}/>
-            }
+            }{
+                val.length &&
+            <SponsorTable
+                cols={col}
+                values={val}/>
+        }
         </Card>
     )
 }
