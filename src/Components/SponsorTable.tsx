@@ -45,29 +45,57 @@ const SponsorTable = (props: SponsorTableProps) => {
             size: 50,
         },
     });
-    return(
-        <Table data = {dataMapped} theme = {theme} pagination = {pagination}>
+    return (
+        <>
+        <Table data={dataMapped} theme={theme} pagination={pagination}>
             {(tableList: any) => (
                 <>
-                <Header>
-                    <HeaderRow>
-                        {props.cols.map(value => <HeaderCell>{value}</HeaderCell>)}
-                    </HeaderRow>
-                </Header>
-                <Body>
-                    {tableList.map((item : any, index: any) => (
-                        <Row key={item.id} item={item}>
-                        <Cell>{item.org}</Cell>
-                        <Cell>{item.town}</Cell>
-                        <Cell>{item.county}</Cell>
-                        <Cell>{item.type}</Cell>
-                        <Cell>{item.route}</Cell>
-                        </Row>
-                    ))}
-                </Body>
+                    <Header>
+                        <HeaderRow>
+                            {props.cols.map(value => <HeaderCell>{value}</HeaderCell>)}
+                        </HeaderRow>
+                    </Header>
+                    <Body>
+                        {tableList.map((item: any, index: number) => (
+                            <Row key={item.id} item={item}>
+                                <Cell>{item.org}</Cell>
+                                <Cell>{item.town}</Cell>
+                                <Cell>{item.county}</Cell>
+                                <Cell>{item.type}</Cell>
+                                <Cell>{item.route}</Cell>
+                            </Row>
+                        ))}
+                    </Body>
                 </>
             )}
         </Table>
+    <div
+        style={{display: 'flex', justifyContent: 'space-between'}}
+    >
+        <span>
+          Total Pages: {pagination.state.getTotalPages(dataMapped.nodes)}
+        </span>
+
+        <span>
+          Page:{' '}
+            {pagination.state.getPages(dataMapped.nodes).map((_: any, index: number) => (
+                <button
+                    key={index}
+                    type="button"
+                    style={{
+                        fontWeight:
+                            pagination.state.page === index
+                                ? 'bold'
+                                : 'normal',
+                    }}
+                    onClick={() => pagination.fns.onSetPage(index)}
+                >
+                {index + 1}
+                </button>
+            ))}
+        </span>
+    </div>
+        </>
     )
 }
 export default SponsorTable;
