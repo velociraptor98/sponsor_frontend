@@ -73,10 +73,6 @@ const SponsorTable = (props: SponsorTableProps) => {
         style={{display: 'flex', justifyContent: 'space-between'}}
     >
         <span>
-          Total Pages: {pagination.state.getTotalPages(dataMapped.nodes)}
-        </span>
-
-        <span>
           Page:{' '}
             {pagination.state.getPages(dataMapped.nodes).map((_: any, index: number) => (
                 <button
