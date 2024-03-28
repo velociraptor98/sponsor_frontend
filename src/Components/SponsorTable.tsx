@@ -8,8 +8,10 @@ import {
     Cell,
 } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
-import { getTheme } from '@table-library/react-table-library/baseline';
 import { usePagination } from '@table-library/react-table-library/pagination';
+import {Button, Container, HStack, IconButton} from "@chakra-ui/react";
+import { DEFAULT_OPTIONS, getTheme } from '@table-library/react-table-library/chakra-ui';
+import {FaChevronLeft, FaChevronRight} from 'react-icons/fa';
 
 
 interface  SponsorTableProps{
@@ -19,7 +21,8 @@ interface  SponsorTableProps{
 
 
 const SponsorTable = (props: SponsorTableProps) => {
-    const theme = useTheme(getTheme());
+    const chakraTheme = getTheme(DEFAULT_OPTIONS);
+    const theme = useTheme(chakraTheme);
     const mapDataToTableFormat = (values: String[][]):any => {
         let mainList: any[] = [];
         const test = values.map((val:String[],index:number)=>{
@@ -42,9 +45,25 @@ const SponsorTable = (props: SponsorTableProps) => {
     const pagination = usePagination(dataMapped, {
         state: {
             page: 0,
-            size: 50,
+            size: 100,
         },
     });
+
+    const handlePageChange = (currentPage: number, totalPages: number, direction: string):number => {
+        if(currentPage === totalPages && direction === 'UP'){
+            return currentPage;
+        }
+        if(currentPage === 0 && direction === 'DOWN'){
+            return currentPage;
+        }
+        if(direction === 'UP'){
+            return currentPage + 1;
+        }
+        else{
+            return currentPage - 1;
+        }
+    }
+
     return (
         <>
         <Table data={dataMapped} theme={theme} pagination={pagination}>
@@ -72,24 +91,25 @@ const SponsorTable = (props: SponsorTableProps) => {
     <div
         style={{display: 'flex', justifyContent: 'space-between'}}
     >
-        <span>
-          Page:{' '}
-            {pagination.state.getPages(dataMapped.nodes).map((_: any, index: number) => (
-                <button
-                    key={index}
-                    type="button"
-                    style={{
-                        fontWeight:
-                            pagination.state.page === index
-                                ? 'bold'
-                                : 'normal',
-                    }}
-                    onClick={() => pagination.fns.onSetPage(index)}
-                >
-                {index + 1}
-                </button>
-            ))}
-        </span>
+        <HStack justify="flex-end">
+            <IconButton
+                aria-label="previous page"
+                icon={<FaChevronLeft />}
+                colorScheme="teal"
+                variant="ghost"
+                disabled={pagination.state.page === 0}
+                onClick={() => pagination.fns.onSetPage(handlePageChange(pagination.state.page,pagination.state.getTotalPages(dataMapped.nodes),'DOWN'))}
+            />
+
+            <IconButton
+                aria-label="next page"
+                icon={<FaChevronRight />}
+                colorScheme="teal"
+                variant="ghost"
+                disabled={pagination.state.page + 1 === pagination.state.getTotalPages(dataMapped.nodes)}
+                onClick = {() => pagination.fns.onSetPage(handlePageChange(pagination.state.page,pagination.state.getTotalPages(dataMapped.nodes),'UP'))}
+            />
+        </HStack>
     </div>
         </>
     )
