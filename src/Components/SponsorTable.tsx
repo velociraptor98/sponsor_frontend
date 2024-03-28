@@ -9,7 +9,7 @@ import {
 } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
 import { usePagination } from '@table-library/react-table-library/pagination';
-import {Button, Container, HStack, IconButton} from "@chakra-ui/react";
+import {HStack, IconButton} from "@chakra-ui/react";
 import { DEFAULT_OPTIONS, getTheme } from '@table-library/react-table-library/chakra-ui';
 import {FaChevronLeft, FaChevronRight} from 'react-icons/fa';
 
@@ -21,11 +21,11 @@ interface  SponsorTableProps{
 
 
 const SponsorTable = (props: SponsorTableProps) => {
-    const chakraTheme = getTheme(DEFAULT_OPTIONS);
+    const chakraTheme = getTheme(DEFAULT_OPTIONS,{isVirtualized:true});
     const theme = useTheme(chakraTheme);
     const mapDataToTableFormat = (values: String[][]):any => {
         let mainList: any[] = [];
-        const test = values.map((val:String[],index:number)=>{
+        values.map((val:String[],index:number)=>{
             const tempVal = {
                 id: index,
                 org: val[0],
@@ -45,7 +45,7 @@ const SponsorTable = (props: SponsorTableProps) => {
     const pagination = usePagination(dataMapped, {
         state: {
             page: 0,
-            size: 100,
+            size: 50,
         },
     });
 
@@ -64,9 +64,19 @@ const SponsorTable = (props: SponsorTableProps) => {
         }
     }
 
+    const VIRTUALIZED_OPTIONS = {
+        rowHeight: (_item: any, _index: any) => 25,
+    };
+
     return (
         <>
-        <Table data={dataMapped} theme={theme} pagination={pagination}>
+        <Table
+            data={dataMapped}
+            theme={theme}
+            pagination={pagination}
+            virtualizedOptions={VIRTUALIZED_OPTIONS}
+            layout={{ isDiv: true, fixedHeader: true }}
+        >
             {(tableList: any) => (
                 <>
                     <Header>

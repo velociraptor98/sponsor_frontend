@@ -14,7 +14,7 @@ const MainContainer = () =>{
     }
     return(
         <Card
-        className={"sm bg-white"}>
+        className={"lg bg-white"}>
             {
                 !val.length &&
             <FileUploader
