@@ -9,7 +9,7 @@ import {
 } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
 import { usePagination } from '@table-library/react-table-library/pagination';
-import {HStack, IconButton} from "@chakra-ui/react";
+import {Box, HStack, IconButton} from "@chakra-ui/react";
 import { DEFAULT_OPTIONS, getTheme } from '@table-library/react-table-library/chakra-ui';
 import {FaChevronLeft, FaChevronRight} from 'react-icons/fa';
 
@@ -69,7 +69,7 @@ const SponsorTable = (props: SponsorTableProps) => {
     };
 
     return (
-        <>
+        <Box p={3} borderWidth="1px" borderRadius="lg" height={"85vh"}>
         <Table
             data={dataMapped}
             theme={theme}
@@ -121,7 +121,7 @@ const SponsorTable = (props: SponsorTableProps) => {
             />
         </HStack>
     </div>
-        </>
+        </Box>
     )
 }
 export default SponsorTable;

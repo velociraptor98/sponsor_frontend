@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import {
     Button,
     Modal,
@@ -7,7 +7,6 @@ import {
     ModalContent,
     ModalFooter,
     ModalHeader, ModalOverlay,
-    Input,
     useDisclosure
 } from "@chakra-ui/react";
 import { useCSVReader } from 'react-papaparse';
@@ -34,13 +33,16 @@ const FileUploader = (props: FileUploaderProps) => {
     return (
         <>
             <Button
-                m='4'
+                colorScheme='teal'
+                variant='ghost'
+                size='lg'
+                m='16'
                 onClick={() => {
                     setOverlay(<OverlayBody />)
                     onOpen()
                 }}
             >
-                Upload CSV
+                Upload
             </Button>
             <Modal isCentered isOpen={isOpen} onClose={onClose}>
                 {overlay}
@@ -60,9 +62,6 @@ const FileUploader = (props: FileUploaderProps) => {
                             {({
                                   getRootProps,
                                   acceptedFile,
-                                  ProgressBar,
-                                  getRemoveFileProps,
-                                  Remove,
                               }: any) => (
                                 <>
                                     <div {...getRootProps()}>

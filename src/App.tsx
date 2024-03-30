@@ -12,10 +12,8 @@ export const App = () => (
   <ChakraProvider theme={theme}>
     <Navbar/>
     <Box textAlign="center" fontSize="xl">
-      <Container minH="100vh" p={3}>
+      <Container p={3}>
           <MainContainer/>
-        <VStack spacing={8}>
-        </VStack>
       </Container>
     </Box>
   </ChakraProvider>
