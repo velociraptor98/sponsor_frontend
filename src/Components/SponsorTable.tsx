@@ -9,7 +9,7 @@ import {
 } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
 import { usePagination } from '@table-library/react-table-library/pagination';
-import {Box, HStack, IconButton, Select} from "@chakra-ui/react";
+import {Box, Container, HStack, IconButton, Select, Text} from "@chakra-ui/react";
 import { DEFAULT_OPTIONS, getTheme } from '@table-library/react-table-library/chakra-ui';
 import {FaChevronLeft, FaChevronRight} from 'react-icons/fa';
 import React, {useState, useEffect} from "react";
@@ -24,7 +24,6 @@ interface  SponsorTableProps{
 const SponsorTable = (props: SponsorTableProps) => {
     const [currentSelection,setCurrentSelection] = useState("-");
     const [selectionList,setSelectionList] = useState(Array.of<string>);
-    const [limitSelection,setLimitSelection] = useState(100);
     const [dataMapped,setDataMapped] = useState({nodes:[]});
     const chakraTheme = getTheme(DEFAULT_OPTIONS,{isVirtualized:true});
     const theme = useTheme(chakraTheme);
@@ -32,10 +31,6 @@ const SponsorTable = (props: SponsorTableProps) => {
 
     const updateSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setCurrentSelection(event.target.value);
-    }
-
-    const updateLimitSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setLimitSelection(Number(event.target.value));
     }
     const mapSelectionList = (dataMapped: any) => {
         let selectionSet:Set<string> = new Set();
@@ -76,7 +71,7 @@ const SponsorTable = (props: SponsorTableProps) => {
     const pagination = usePagination(dataMapped, {
         state: {
             page: 0,
-            size: limitSelection,
+            size: 100,
         },
     });
 
@@ -96,7 +91,9 @@ const SponsorTable = (props: SponsorTableProps) => {
     }
 
     return (
-        <Box>
+        <Container display={"flex"} minW={"100vh"}>
+            <Box>
+            <Text>Town</Text>
             <Select
                 value={currentSelection}
                 onChange={updateSelection}>
@@ -105,14 +102,7 @@ const SponsorTable = (props: SponsorTableProps) => {
                     selectionList.length && selectionList.map((val: string, index: number) => <option key={index} value={val}>{val}</option>)
                 }
             </Select>
-            <Select
-                value={limitSelection}
-                onChange={updateLimitSelection}>
-                <option value="50">50</option>
-                <option value="50">100</option>
-                <option value="50">150</option>
-                <option value="50">200</option>
-            </Select>
+            </Box>
             <Box p={3} borderWidth="1px" borderRadius="lg" height={"85vh"}>
         <Table
             data={dataMapped}
@@ -165,7 +155,7 @@ const SponsorTable = (props: SponsorTableProps) => {
         </HStack>
     </div>
         </Box>
-        </Box>
+        </Container>
     )
 }
 export default SponsorTable;
