@@ -12,7 +12,7 @@ import { usePagination } from '@table-library/react-table-library/pagination';
 import {Box, HStack, IconButton, Select} from "@chakra-ui/react";
 import { DEFAULT_OPTIONS, getTheme } from '@table-library/react-table-library/chakra-ui';
 import {FaChevronLeft, FaChevronRight} from 'react-icons/fa';
-import {useState} from "react";
+import {useState, useEffect} from "react";
 
 
 interface  SponsorTableProps{
@@ -22,13 +22,15 @@ interface  SponsorTableProps{
 
 
 const SponsorTable = (props: SponsorTableProps) => {
-    const [selectionList,setSelectionList] = useState(Array.of<String>);
+    const [currentSelection,setCurrentSelection] = useState("-");
+    const [selectionList,setSelectionList] = useState(Array.of<string>);
     const [limitSelection,setLimitSelection] = useState(100);
+    const [dataMapped,setDataMapped] = useState({nodes:[]});
     const chakraTheme = getTheme(DEFAULT_OPTIONS,{isVirtualized:true});
     const theme = useTheme(chakraTheme);
     const mapDataToTableFormat = (values: String[][]):any => {
         let mainList: any[] = [];
-        values.map((val:String[],index:number)=>{
+        values.map((val:String[],index:number)  => {
             const tempVal = {
                 id: index,
                 org: val[0],
@@ -38,22 +40,36 @@ const SponsorTable = (props: SponsorTableProps) => {
                 route: val[4],
 
             };
+            if(tempVal.town === currentSelection || currentSelection === '-'){
             mainList.push(tempVal);
+            }
+            return mainList;
         });
         return {nodes: mainList};
     }
 
+    const updateSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setCurrentSelection(event.target.value);
+    }
+
+    const updateLimitSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setLimitSelection(Number(event.target.value));
+    }
     const mapSelectionList = (dataMapped: any) => {
-        let selectionSet:Set<String> = new Set();
+        let selectionSet:Set<string> = new Set();
         for(let data in dataMapped){
             selectionSet.add(dataMapped[data][1])
         }
-        const selectionList: String[] = Array.from(selectionSet.values());
-        setSelectionList(selectionList);
+        return Array.from(selectionSet.values());
     }
 
-    const dataMapped = mapDataToTableFormat(props.values);
-    const selectionListEntries = mapSelectionList(props.values);
+    useEffect(() => {
+        setSelectionList(mapSelectionList(props.values));
+    }, [props.values]);
+
+    useEffect(() => {
+        setDataMapped(mapDataToTableFormat(props.values));
+    }, [currentSelection,props.values]);
 
 
     const pagination = usePagination(dataMapped, {
@@ -84,8 +100,23 @@ const SponsorTable = (props: SponsorTableProps) => {
 
     return (
         <Box>
-            <Select></Select>
-        <Box p={3} borderWidth="1px" borderRadius="lg" height={"85vh"}>
+            <Select
+                value={currentSelection}
+                onChange={updateSelection}>
+                <option value="-">-</option>
+                {
+                    selectionList.length && selectionList.map((val: string, index: number) => <option key={index} value={val}>{val}</option>)
+                }
+            </Select>
+            <Select
+                value={limitSelection}
+                onChange={updateLimitSelection}>
+                <option value="50">50</option>
+                <option value="50">100</option>
+                <option value="50">150</option>
+                <option value="50">200</option>
+            </Select>
+            <Box p={3} borderWidth="1px" borderRadius="lg" height={"85vh"}>
         <Table
             data={dataMapped}
             theme={theme}
@@ -102,7 +133,7 @@ const SponsorTable = (props: SponsorTableProps) => {
                     </Header>
                     <Body>
                         {tableList.map((item: any, index: number) => (
-                            <Row key={item.id} item={item}>
+                            <Row key={index} item={item}>
                                 <Cell>{item.org}</Cell>
                                 <Cell>{item.town}</Cell>
                                 <Cell>{item.county}</Cell>

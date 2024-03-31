@@ -1,6 +1,6 @@
-import {Box, BoxProps, Container, useColorModeValue} from '@chakra-ui/react'
+import {Box, Container, useColorModeValue} from '@chakra-ui/react'
 
-export const Footer = (props: BoxProps) => {
+const Footer = () => {
     return (
         <Box as="footer" bg={useColorModeValue('gray.100', 'gray.900')} px={4} role="contentinfo">
             <Container>
@@ -11,3 +11,4 @@ export const Footer = (props: BoxProps) => {
         </Box>
     )
 }
+export default Footer;

@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {AbsoluteCenter, Card, Center} from "@chakra-ui/react";
+import {AbsoluteCenter, Card} from "@chakra-ui/react";
 import FileUploader from "./FileUploader";
 import SponsorTable from "./SponsorTable";
 const MainContainer = () =>{
