@@ -9,9 +9,10 @@ import {
 } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
 import { usePagination } from '@table-library/react-table-library/pagination';
-import {Box, HStack, IconButton} from "@chakra-ui/react";
+import {Box, HStack, IconButton, Select} from "@chakra-ui/react";
 import { DEFAULT_OPTIONS, getTheme } from '@table-library/react-table-library/chakra-ui';
 import {FaChevronLeft, FaChevronRight} from 'react-icons/fa';
+import {useState} from "react";
 
 
 interface  SponsorTableProps{
@@ -21,6 +22,8 @@ interface  SponsorTableProps{
 
 
 const SponsorTable = (props: SponsorTableProps) => {
+    const [selectionList,setSelectionList] = useState(Array.of<String>);
+    const [limitSelection,setLimitSelection] = useState(100);
     const chakraTheme = getTheme(DEFAULT_OPTIONS,{isVirtualized:true});
     const theme = useTheme(chakraTheme);
     const mapDataToTableFormat = (values: String[][]):any => {
@@ -40,12 +43,23 @@ const SponsorTable = (props: SponsorTableProps) => {
         return {nodes: mainList};
     }
 
+    const mapSelectionList = (dataMapped: any) => {
+        let selectionSet:Set<String> = new Set();
+        for(let data in dataMapped){
+            selectionSet.add(dataMapped[data][1])
+        }
+        const selectionList: String[] = Array.from(selectionSet.values());
+        setSelectionList(selectionList);
+    }
+
     const dataMapped = mapDataToTableFormat(props.values);
+    const selectionListEntries = mapSelectionList(props.values);
+
 
     const pagination = usePagination(dataMapped, {
         state: {
             page: 0,
-            size: 50,
+            size: limitSelection,
         },
     });
 
@@ -69,6 +83,8 @@ const SponsorTable = (props: SponsorTableProps) => {
     };
 
     return (
+        <Box>
+            <Select></Select>
         <Box p={3} borderWidth="1px" borderRadius="lg" height={"85vh"}>
         <Table
             data={dataMapped}
@@ -121,6 +137,7 @@ const SponsorTable = (props: SponsorTableProps) => {
             />
         </HStack>
     </div>
+        </Box>
         </Box>
     )
 }

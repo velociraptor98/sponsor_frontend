@@ -7,6 +7,7 @@ import {
 } from "@chakra-ui/react"
 import Navbar from "./Components/Navbar";
 import MainContainer from "./Components/MainContainer";
+import {Footer} from "./Components/Footer";
 
 export const App = () => (
   <ChakraProvider theme={theme}>
@@ -16,5 +17,6 @@ export const App = () => (
           <MainContainer/>
       </Container>
     </Box>
+      {/*<Footer/>*/}
   </ChakraProvider>
 )

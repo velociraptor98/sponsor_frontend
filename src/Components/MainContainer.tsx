@@ -12,7 +12,7 @@ const MainContainer = () =>{
         setVal(value)
     }
     return(
-        <Card height={"90vh"} alignItems={"center"}>
+        <Card height={"85vh"} alignItems={"center"}>
             {
                 !val.length &&
                 <AbsoluteCenter>
