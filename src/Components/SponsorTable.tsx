@@ -12,7 +12,7 @@ import { usePagination } from '@table-library/react-table-library/pagination';
 import {Box, HStack, IconButton, Select} from "@chakra-ui/react";
 import { DEFAULT_OPTIONS, getTheme } from '@table-library/react-table-library/chakra-ui';
 import {FaChevronLeft, FaChevronRight} from 'react-icons/fa';
-import {useState, useEffect} from "react";
+import React, {useState, useEffect} from "react";
 
 
 interface  SponsorTableProps{
@@ -28,25 +28,7 @@ const SponsorTable = (props: SponsorTableProps) => {
     const [dataMapped,setDataMapped] = useState({nodes:[]});
     const chakraTheme = getTheme(DEFAULT_OPTIONS,{isVirtualized:true});
     const theme = useTheme(chakraTheme);
-    const mapDataToTableFormat = (values: String[][]):any => {
-        let mainList: any[] = [];
-        values.map((val:String[],index:number)  => {
-            const tempVal = {
-                id: index,
-                org: val[0],
-                town: val[1],
-                county: val[2],
-                type: val[3],
-                route: val[4],
 
-            };
-            if(tempVal.town === currentSelection || currentSelection === '-'){
-            mainList.push(tempVal);
-            }
-            return mainList;
-        });
-        return {nodes: mainList};
-    }
 
     const updateSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setCurrentSelection(event.target.value);
@@ -68,6 +50,25 @@ const SponsorTable = (props: SponsorTableProps) => {
     }, [props.values]);
 
     useEffect(() => {
+        const mapDataToTableFormat = (values: String[][]):any => {
+            let mainList: any[] = [];
+            values.map((val:String[],index:number)  => {
+                const tempVal = {
+                    id: index,
+                    org: val[0],
+                    town: val[1],
+                    county: val[2],
+                    type: val[3],
+                    route: val[4],
+
+                };
+                if(tempVal.town === currentSelection || currentSelection === '-'){
+                    mainList.push(tempVal);
+                }
+                return mainList;
+            });
+            return {nodes: mainList};
+        }
         setDataMapped(mapDataToTableFormat(props.values));
     }, [currentSelection,props.values]);
 
@@ -94,10 +95,6 @@ const SponsorTable = (props: SponsorTableProps) => {
         }
     }
 
-    const VIRTUALIZED_OPTIONS = {
-        rowHeight: (_item: any, _index: any) => 25,
-    };
-
     return (
         <Box>
             <Select
@@ -121,7 +118,6 @@ const SponsorTable = (props: SponsorTableProps) => {
             data={dataMapped}
             theme={theme}
             pagination={pagination}
-            virtualizedOptions={VIRTUALIZED_OPTIONS}
             layout={{ isDiv: true, fixedHeader: true }}
         >
             {(tableList: any) => (
