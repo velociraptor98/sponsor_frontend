@@ -103,7 +103,7 @@ const SponsorTable = (props: SponsorTableProps) => {
                 }
             </Select>
             </Box>
-            <Box p={3} borderWidth="1px" borderRadius="lg" height={"85vh"}>
+            <Box p={3} borderWidth="1px" borderRadius="lg" height={"85vh"} width={"100%"}>
         <Table
             data={dataMapped}
             theme={theme}

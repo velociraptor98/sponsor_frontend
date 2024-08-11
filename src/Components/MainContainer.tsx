@@ -24,7 +24,6 @@ const MainContainer = () =>{
                 </AbsoluteCenter>
                 </Card>
             }
-
             {
                 !!val.length &&
             <SponsorTable
