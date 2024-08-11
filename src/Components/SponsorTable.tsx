@@ -74,7 +74,7 @@ const SponsorTable = (props: SponsorTableProps) => {
     const pagination = usePagination(dataMapped, {
         state: {
             page: 0,
-            size: 100,
+            size: 20,
         },
     });
 
@@ -99,7 +99,7 @@ const SponsorTable = (props: SponsorTableProps) => {
 
     return (
         <Container display={"flow"}>
-            <>
+            <Container display={"flex"} flexDirection={"row"}>
             <Select
                 value={currentSelection}
                 onChange={updateSelection}>
@@ -108,65 +108,62 @@ const SponsorTable = (props: SponsorTableProps) => {
                     selectionList.length && selectionList.map((val: string, index: number) => <option key={index} value={val}>{val}</option>)
                 }
             </Select>
-            </>
-            <>
+                <Input placeholder="Search by company" value={search} onChange={handleChange} size="md" />
+            </Container>
+            <Box p={3} borderWidth="1px" borderRadius="lg" height={"fit-content"} width={"100%"}>
+                <div
+                    style={{display: 'flex', justifyContent: 'space-between'}}
+                >
+                    <HStack justify="flex-end">
+                        <IconButton
+                            aria-label="previous page"
+                            icon={<FaChevronLeft/>}
+                            colorScheme="teal"
+                            variant="ghost"
+                            disabled={pagination.state.page === 0}
+                            onClick={() => pagination.fns.onSetPage(handlePageChange(pagination.state.page, pagination.state.getTotalPages(dataMapped.nodes), 'DOWN'))}
+                        />
 
-                <Input placeholder="Search by company" value={search} onChange={handleChange} size="sm" />
-                </>
-            <Box p={3} borderWidth="1px" borderRadius="lg" height={"85vh"} width={"100%"}>
+                        <IconButton
+                            aria-label="next page"
+                            icon={<FaChevronRight/>}
+                            colorScheme="teal"
+                            variant="ghost"
+                            disabled={pagination.state.page + 1 === pagination.state.getTotalPages(dataMapped.nodes)}
+                            onClick={() => pagination.fns.onSetPage(handlePageChange(pagination.state.page, pagination.state.getTotalPages(dataMapped.nodes), 'UP'))}
+                        />
+                    </HStack>
+                </div>
                 <Table
                     data={dataMapped}
                     theme={theme}
                     pagination={pagination}
-            layout={{ isDiv: true, fixedHeader: true }}
-            columns={null}
-        >
-            {(tableList: any) => (
-                <>
-                    <Header>
-                        <HeaderRow>
-                            {props.cols.map(value => <HeaderCell key={value}>{value}</HeaderCell>)}
-                        </HeaderRow>
-                    </Header>
-                    <Body>
-                        {tableList.map((item: any, index: number) => (
-                            <Row key={index} item={item}>
-                                <Cell>{item.org}</Cell>
-                                <Cell>{item.town}</Cell>
-                                <Cell>{item.county}</Cell>
-                                <Cell>{item.type}</Cell>
-                                <Cell>{item.route}</Cell>
-                            </Row>
-                        ))}
-                    </Body>
-                </>
-            )}
-        </Table>
-    <div
-        style={{display: 'flex', justifyContent: 'space-between'}}
-    >
-        <HStack justify="flex-end">
-            <IconButton
-                aria-label="previous page"
-                icon={<FaChevronLeft />}
-                colorScheme="teal"
-                variant="ghost"
-                disabled={pagination.state.page === 0}
-                onClick={() => pagination.fns.onSetPage(handlePageChange(pagination.state.page,pagination.state.getTotalPages(dataMapped.nodes),'DOWN'))}
-            />
-
-            <IconButton
-                aria-label="next page"
-                icon={<FaChevronRight />}
-                colorScheme="teal"
-                variant="ghost"
-                disabled={pagination.state.page + 1 === pagination.state.getTotalPages(dataMapped.nodes)}
-                onClick = {() => pagination.fns.onSetPage(handlePageChange(pagination.state.page,pagination.state.getTotalPages(dataMapped.nodes),'UP'))}
-            />
-        </HStack>
-    </div>
-        </Box>
-         </Container>
+                    layout={{isDiv: true, fixedHeader: true}}
+                    columns={null}
+                >
+                    {(tableList: any) => (
+                        <>
+                            <Header>
+                                <HeaderRow>
+                                    {props.cols.map(value => <HeaderCell key={value}>{value}</HeaderCell>)}
+                                </HeaderRow>
+                            </Header>
+                            <Body>
+                                {tableList.map((item: any, index: number) => (
+                                    <Row key={index} item={item}>
+                                        <Cell>{item.org}</Cell>
+                                        <Cell>{item.town}</Cell>
+                                        <Cell>{item.county}</Cell>
+                                        <Cell>{item.type}</Cell>
+                                        <Cell>{item.route}</Cell>
+                                    </Row>
+                                ))}
+                            </Body>
+                        </>
+                    )}
+                </Table>
+            </Box>
+        </Container>
     )
 }
 export default SponsorTable;
