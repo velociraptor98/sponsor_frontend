@@ -125,7 +125,7 @@ const SponsorTable = (props: SponsorTableProps) => {
                 <>
                     <Header>
                         <HeaderRow>
-                            {props.cols.map(value => <HeaderCell>{value}</HeaderCell>)}
+                            {props.cols.map(value => <HeaderCell key={value}>{value}</HeaderCell>)}
                         </HeaderRow>
                     </Header>
                     <Body>
