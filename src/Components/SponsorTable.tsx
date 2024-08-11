@@ -9,7 +9,7 @@ import {
 } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
 import { usePagination } from '@table-library/react-table-library/pagination';
-import {Box, Container, HStack, IconButton, Select, Text} from "@chakra-ui/react";
+import {Box, Container, HStack, IconButton, Input, Select, Text} from "@chakra-ui/react";
 import { DEFAULT_OPTIONS, getTheme } from '@table-library/react-table-library/chakra-ui';
 import {FaChevronLeft, FaChevronRight} from 'react-icons/fa';
 import React, {useState, useEffect} from "react";
@@ -27,7 +27,7 @@ const SponsorTable = (props: SponsorTableProps) => {
     const [dataMapped,setDataMapped] = useState({nodes:[]});
     const chakraTheme = getTheme(DEFAULT_OPTIONS,{isVirtualized:true});
     const theme = useTheme(chakraTheme);
-
+    const [search,setSearch]=useState("");
 
     const updateSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setCurrentSelection(event.target.value);
@@ -55,9 +55,12 @@ const SponsorTable = (props: SponsorTableProps) => {
                     county: val[2],
                     type: val[3],
                     route: val[4],
-
+                    resize: true
                 };
-                if(tempVal.town === currentSelection || currentSelection === '-'){
+                if((tempVal.town === currentSelection || currentSelection === '-') && search === ""){
+                    mainList.push(tempVal);
+                }
+                if(search !== "" && tempVal.org.toLowerCase().includes(search.toLowerCase())){
                     mainList.push(tempVal);
                 }
                 return mainList;
@@ -65,7 +68,7 @@ const SponsorTable = (props: SponsorTableProps) => {
             return {nodes: mainList};
         }
         setDataMapped(mapDataToTableFormat(props.values));
-    }, [currentSelection,props.values]);
+    }, [currentSelection,props.values,search]);
 
 
     const pagination = usePagination(dataMapped, {
@@ -74,6 +77,10 @@ const SponsorTable = (props: SponsorTableProps) => {
             size: 100,
         },
     });
+
+    const handleChange = (event: any) => {
+        setSearch(event.target.value);
+    }
 
     const handlePageChange = (currentPage: number, totalPages: number, direction: string):number => {
         if(currentPage === totalPages && direction === 'UP'){
@@ -91,9 +98,8 @@ const SponsorTable = (props: SponsorTableProps) => {
     }
 
     return (
-        <Container display={"flex"} minW={"100vh"}>
-            <Box>
-            <Text>Town</Text>
+        <Container display={"flow"}>
+            <>
             <Select
                 value={currentSelection}
                 onChange={updateSelection}>
@@ -102,13 +108,18 @@ const SponsorTable = (props: SponsorTableProps) => {
                     selectionList.length && selectionList.map((val: string, index: number) => <option key={index} value={val}>{val}</option>)
                 }
             </Select>
-            </Box>
+            </>
+            <>
+
+                <Input placeholder="Search by company" value={search} onChange={handleChange} size="sm" />
+                </>
             <Box p={3} borderWidth="1px" borderRadius="lg" height={"85vh"} width={"100%"}>
-        <Table
-            data={dataMapped}
-            theme={theme}
-            pagination={pagination}
+                <Table
+                    data={dataMapped}
+                    theme={theme}
+                    pagination={pagination}
             layout={{ isDiv: true, fixedHeader: true }}
+            columns={null}
         >
             {(tableList: any) => (
                 <>
@@ -155,7 +166,7 @@ const SponsorTable = (props: SponsorTableProps) => {
         </HStack>
     </div>
         </Box>
-        </Container>
+         </Container>
     )
 }
 export default SponsorTable;

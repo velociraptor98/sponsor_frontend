@@ -1,4 +1,4 @@
-import {Fragment, useState} from "react";
+import { useState} from "react";
 import {AbsoluteCenter, Card} from "@chakra-ui/react";
 import FileUploader from "./FileUploader";
 import SponsorTable from "./SponsorTable";
@@ -12,11 +12,10 @@ const MainContainer = () =>{
         setVal(value)
     }
     return(
-        // <Container minW={"100vh"}>
-        <Fragment>
+        <>
             {
                 !val.length &&
-                <Card height={"85vh"} alignItems={"center"}>
+                <Card height={"15vh"} alignItems={"center"}>
                 <AbsoluteCenter>
             <FileUploader
             setCol={setColumn}
@@ -30,9 +29,7 @@ const MainContainer = () =>{
                 cols={col}
                 values={val}/>
         }
-
-        {/*</Container>*/}
-</Fragment>
+</>
 
     )
 }
