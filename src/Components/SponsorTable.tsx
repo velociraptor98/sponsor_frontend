@@ -9,7 +9,7 @@ import {
 } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
 import { usePagination } from '@table-library/react-table-library/pagination';
-import {Box, Container, HStack, IconButton, Input, Select, Text} from "@chakra-ui/react";
+import {Box, Container, HStack, IconButton, Input, Select} from "@chakra-ui/react";
 import { DEFAULT_OPTIONS, getTheme } from '@table-library/react-table-library/chakra-ui';
 import {FaChevronLeft, FaChevronRight} from 'react-icons/fa';
 import React, {useState, useEffect} from "react";
