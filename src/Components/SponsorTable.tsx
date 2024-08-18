@@ -57,7 +57,6 @@ const SponsorTable = (props: SponsorTableProps) => {
                     route: val[4],
                     resize: true
                 };
-                // Not the best way to handle the filtering but works for the purpose as no need to further extend it.
                 if((tempVal.town === currentSelection || currentSelection === '-') && search === ""){
                     mainList.push(tempVal);
                 }
