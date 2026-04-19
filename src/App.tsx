@@ -10,8 +10,8 @@ import MainContainer from "./Components/MainContainer";
 export const App = () => (
   <ChakraProvider theme={theme}>
     <Navbar/>
-    <Box textAlign="center" fontSize="xl">
-      <Container p={3}>
+    <Box fontSize="xl">
+      <Container maxW="container.xl" p={6}>
           <MainContainer/>
       </Container>
     </Box>

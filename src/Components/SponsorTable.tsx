@@ -1,169 +1,291 @@
+import React, { useState, useMemo } from "react";
 import {
-    Table,
-    Header,
-    HeaderRow,
-    Body,
-    Row,
-    HeaderCell,
-    Cell,
-} from '@table-library/react-table-library/table';
-import { useTheme } from '@table-library/react-table-library/theme';
-import { usePagination } from '@table-library/react-table-library/pagination';
-import {Box, Container, HStack, IconButton, Input, Select} from "@chakra-ui/react";
-import { DEFAULT_OPTIONS, getTheme } from '@table-library/react-table-library/chakra-ui';
-import {FaChevronLeft, FaChevronRight} from 'react-icons/fa';
-import React, {useState, useEffect} from "react";
+  Table,
+  Header,
+  HeaderRow,
+  Body,
+  Row,
+  HeaderCell,
+  Cell,
+} from "@table-library/react-table-library/table";
+import { useTheme } from "@table-library/react-table-library/theme";
+import { usePagination } from "@table-library/react-table-library/pagination";
+import {
+  Box,
+  Flex,
+  HStack,
+  IconButton,
+  Input,
+  Select,
+  Text,
+  InputGroup,
+  InputLeftElement,
+  Stack,
+  useColorModeValue,
+  Tag,
+  FormControl,
+  FormLabel,
+} from "@chakra-ui/react";
+import {
+  DEFAULT_OPTIONS,
+  getTheme,
+} from "@table-library/react-table-library/chakra-ui";
+import { FaChevronLeft, FaChevronRight, FaSearch } from "react-icons/fa";
 
-
-interface  SponsorTableProps{
-    cols: string[];
-    values: string[][];
+interface SponsorTableProps {
+  cols: string[];
+  values: string[][];
 }
 
+const SponsorTable = ({ cols, values }: SponsorTableProps) => {
+  const [currentSelection, setCurrentSelection] = useState("-");
+  const [search, setSearch] = useState("");
 
-const SponsorTable = (props: SponsorTableProps) => {
-    const [currentSelection,setCurrentSelection] = useState("-");
-    const [selectionList,setSelectionList] = useState(Array.of<string>);
-    const [dataMapped,setDataMapped] = useState({nodes:[]});
-    const chakraTheme = getTheme(DEFAULT_OPTIONS,{isVirtualized:true});
-    const theme = useTheme(chakraTheme);
-    const [search,setSearch]=useState("");
+  const bgColor = useColorModeValue("white", "gray.800");
+  const headerBg = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const hoverBg = useColorModeValue("blue.50", "gray.600");
+  const stripeBg = useColorModeValue("white", "gray.800");
+  const evenBg = useColorModeValue("gray.50", "gray.900");
 
-    const updateSelection = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setCurrentSelection(event.target.value);
-    }
-    const mapSelectionList = (dataMapped: any) => {
-        let selectionSet:Set<string> = new Set();
-        for(let data in dataMapped){
-            selectionSet.add(dataMapped[data][1])
+  const chakraTheme = getTheme(DEFAULT_OPTIONS, { isVirtualized: true });
+  
+  const theme = useTheme([
+    chakraTheme,
+    {
+      HeaderRow: `
+        background-color: ${headerBg};
+        font-weight: 800;
+      `,
+      Row: `
+        background-color: ${stripeBg};
+        &:nth-of-type(even) {
+          background-color: ${evenBg};
         }
-        return Array.from(selectionSet.values());
-    }
-
-    useEffect(() => {
-        setSelectionList(mapSelectionList(props.values));
-    }, [props.values]);
-
-    useEffect(() => {
-        const mapDataToTableFormat = (values: String[][]):any => {
-            let mainList: any[] = [];
-            values.map((val:String[],index:number)  => {
-                const tempVal = {
-                    id: index,
-                    org: val[0],
-                    town: val[1],
-                    county: val[2],
-                    type: val[3],
-                    route: val[4],
-                    resize: true
-                };
-                if((tempVal.town === currentSelection || currentSelection === '-') && search === ""){
-                    mainList.push(tempVal);
-                }
-                if(search !== "" && tempVal.org.toLowerCase().includes(search.toLowerCase())){
-                    mainList.push(tempVal);
-                }
-                return mainList;
-            });
-            return {nodes: mainList};
+        &:hover {
+          background-color: ${hoverBg} !important;
+          transition: background-color 0.1s ease-in-out;
         }
-        setDataMapped(mapDataToTableFormat(props.values));
-    }, [currentSelection,props.values,search]);
+      `,
+      HeaderCell: `
+        border-bottom: 2px solid ${borderColor} !important;
+        padding: 16px 12px !important;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--chakra-colors-gray-500);
+      `,
+      Cell: `
+        padding: 14px 12px !important;
+        font-size: 14px;
+        border-bottom: 1px solid ${borderColor} !important;
+      `,
+    },
+  ]);
 
+  // Memoize and filter data
+  const dataMapped = useMemo(() => {
+    const nodes = values
+      .map((val, index) => ({
+        id: index,
+        org: val[0],
+        town: val[1],
+        county: val[2],
+        type: val[3],
+        route: val[4],
+      }))
+      .filter((item) => {
+        const matchesSelection =
+          currentSelection === "-" || item.town === currentSelection;
+        const searchTerm = search.toLowerCase();
+        const matchesSearch =
+          search === "" ||
+          (item.org && item.org.toLowerCase().includes(searchTerm)) ||
+          (item.town && item.town.toLowerCase().includes(searchTerm)) ||
+          (item.county && item.county.toLowerCase().includes(searchTerm));
 
-    const pagination = usePagination(dataMapped, {
-        state: {
-            page: 0,
-            size: 20,
-        },
+        return matchesSelection && matchesSearch;
+      });
+    return { nodes };
+  }, [values, currentSelection, search]);
+
+  // Memoize the list of towns for the filter dropdown
+  const selectionList = useMemo(() => {
+    const selectionSet = new Set<string>();
+    values.forEach((val) => {
+      if (val[1]) selectionSet.add(val[1]);
     });
+    return Array.from(selectionSet).sort();
+  }, [values]);
 
-    const handleChange = (event: any) => {
-        setSearch(event.target.value);
-    }
+  const pagination = usePagination(dataMapped, {
+    state: {
+      page: 0,
+      size: 15,
+    },
+  });
 
-    const handlePageChange = (currentPage: number, totalPages: number, direction: string):number => {
-        if(currentPage === totalPages && direction === 'UP'){
-            return currentPage;
-        }
-        if(currentPage === 0 && direction === 'DOWN'){
-            return currentPage;
-        }
-        if(direction === 'UP'){
-            return currentPage + 1;
-        }
-        else{
-            return currentPage - 1;
-        }
-    }
+  const totalPages = pagination.state.getTotalPages(dataMapped.nodes);
+  const filterBg = useColorModeValue("gray.50", "gray.700");
 
-    return (
-        <Container display={"flow"}>
-            <Container display={"flex"} flexDirection={"row"}>
-            <Select
-                value={currentSelection}
-                onChange={updateSelection}>
-                <option value="-">-</option>
-                {
-                    selectionList.length && selectionList.map((val: string, index: number) => <option key={index} value={val}>{val}</option>)
+  return (
+    <Stack spacing={6} width="100%" maxW="100%" mx="auto">
+      {/* Filters Section */}
+      <Flex
+        direction={{ base: "column", md: "row" }}
+        gap={4}
+        align={{ base: "stretch", md: "flex-end" }}
+        bg={filterBg}
+        p={6}
+        borderRadius="xl"
+        borderWidth="1px"
+        shadow="sm"
+      >
+        <FormControl flex={2}>
+          <FormLabel
+            fontSize="xs"
+            fontWeight="black"
+            textTransform="uppercase"
+            color="gray.500"
+            ml={1}
+          >
+            Search Sponsors
+          </FormLabel>
+          <InputGroup size="lg">
+            <InputLeftElement pointerEvents="none">
+              <FaSearch color="gray.400" />
+            </InputLeftElement>
+            <Input
+              placeholder="Search by company, town or county..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              bg={bgColor}
+              variant="outline"
+              borderRadius="lg"
+            />
+          </InputGroup>
+        </FormControl>
+
+        <FormControl flex={1} maxW={{ md: "300px" }}>
+          <FormLabel
+            fontSize="xs"
+            fontWeight="black"
+            textTransform="uppercase"
+            color="gray.500"
+            ml={1}
+          >
+            Filter by Town
+          </FormLabel>
+          <Select
+            size="lg"
+            value={currentSelection}
+            onChange={(e) => setCurrentSelection(e.target.value)}
+            bg={bgColor}
+            borderRadius="lg"
+          >
+            <option value="-">All Towns</option>
+            {selectionList.map((val, index) => (
+              <option key={index} value={val}>
+                {val}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
+      </Flex>
+
+      {/* Table Section */}
+      <Box
+        bg={bgColor}
+        borderWidth="1px"
+        borderRadius="xl"
+        shadow="xl"
+        overflow="hidden"
+      >
+        <Flex
+          justify="space-between"
+          align="center"
+          px={6}
+          py={4}
+          borderBottomWidth="1px"
+          bg={useColorModeValue("white", "gray.800")}
+        >
+          <HStack spacing={4}>
+            <Text fontWeight="bold" fontSize="lg">
+              Sponsor List
+            </Text>
+            <Tag
+              colorScheme="blue"
+              size="md"
+              borderRadius="full"
+              variant="subtle"
+            >
+              {dataMapped.nodes.length} Results
+            </Tag>
+          </HStack>
+
+          <HStack spacing={4}>
+            <Text fontSize="sm" fontWeight="medium" color="gray.500">
+              Page {pagination.state.page + 1} of {totalPages || 1}
+            </Text>
+            <HStack spacing={2}>
+              <IconButton
+                aria-label="previous page"
+                icon={<FaChevronLeft />}
+                size="sm"
+                variant="ghost"
+                isDisabled={pagination.state.page === 0}
+                onClick={() =>
+                  pagination.fns.onSetPage(pagination.state.page - 1)
                 }
-            </Select>
-                <Input placeholder="Search by company" value={search} onChange={handleChange} size="md" />
-            </Container>
-            <Box p={3} borderWidth="1px" borderRadius="lg" height={"fit-content"} width={"100%"}>
-                <div
-                    style={{display: 'flex', justifyContent: 'space-between'}}
-                >
-                    <HStack justify="flex-end">
-                        <IconButton
-                            aria-label="previous page"
-                            icon={<FaChevronLeft/>}
-                            colorScheme="teal"
-                            variant="ghost"
-                            disabled={pagination.state.page === 0}
-                            onClick={() => pagination.fns.onSetPage(handlePageChange(pagination.state.page, pagination.state.getTotalPages(dataMapped.nodes), 'DOWN'))}
-                        />
+              />
+              <IconButton
+                aria-label="next page"
+                icon={<FaChevronRight />}
+                size="sm"
+                variant="ghost"
+                isDisabled={pagination.state.page + 1 >= totalPages}
+                onClick={() =>
+                  pagination.fns.onSetPage(pagination.state.page + 1)
+                }
+              />
+            </HStack>
+          </HStack>
+        </Flex>
 
-                        <IconButton
-                            aria-label="next page"
-                            icon={<FaChevronRight/>}
-                            colorScheme="teal"
-                            variant="ghost"
-                            disabled={pagination.state.page + 1 === pagination.state.getTotalPages(dataMapped.nodes)}
-                            onClick={() => pagination.fns.onSetPage(handlePageChange(pagination.state.page, pagination.state.getTotalPages(dataMapped.nodes), 'UP'))}
-                        />
-                    </HStack>
-                </div>
-                <Table
-                    data={dataMapped}
-                    theme={theme}
-                    pagination={pagination}
-                    layout={{isDiv: true, fixedHeader: true}}
-                    columns={null}
-                >
-                    {(tableList: any) => (
-                        <>
-                            <Header>
-                                <HeaderRow>
-                                    {props.cols.map(value => <HeaderCell key={value}>{value}</HeaderCell>)}
-                                </HeaderRow>
-                            </Header>
-                            <Body>
-                                {tableList.map((item: any, index: number) => (
-                                    <Row key={index} item={item}>
-                                        <Cell>{item.org}</Cell>
-                                        <Cell>{item.town}</Cell>
-                                        <Cell>{item.county}</Cell>
-                                        <Cell>{item.type}</Cell>
-                                        <Cell>{item.route}</Cell>
-                                    </Row>
-                                ))}
-                            </Body>
-                        </>
-                    )}
-                </Table>
-            </Box>
-        </Container>
-    )
-}
+        <Box overflowX="auto">
+          <Table
+            data={dataMapped}
+            theme={theme}
+            pagination={pagination}
+            layout={{ isDiv: true, fixedHeader: true }}
+          >
+            {(tableList: any) => (
+              <>
+                <Header>
+                  <HeaderRow>
+                    {cols.map((value) => (
+                      <HeaderCell key={value}>{value}</HeaderCell>
+                    ))}
+                  </HeaderRow>
+                </Header>
+                <Body>
+                  {tableList.map((item: any) => (
+                    <Row key={item.id} item={item}>
+                      <Cell>{item.org}</Cell>
+                      <Cell>{item.town}</Cell>
+                      <Cell>{item.county}</Cell>
+                      <Cell>{item.type}</Cell>
+                      <Cell>{item.route}</Cell>
+                    </Row>
+                  ))}
+                </Body>
+              </>
+            )}
+          </Table>
+        </Box>
+      </Box>
+    </Stack>
+  );
+};
+
 export default SponsorTable;
