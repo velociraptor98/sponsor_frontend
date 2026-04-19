@@ -6,19 +6,19 @@ import {
   Stack,
   useColorMode,
   Text,
-  useDisclosure,
-  IconButton,
   HStack,
 } from "@chakra-ui/react";
-import { MoonIcon, SunIcon, HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 
 export default function Navbar() {
   const { colorMode, toggleColorMode } = useColorMode();
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <Box
-      bg={useColorModeValue("rgba(255, 255, 255, 0.8)", "rgba(23, 25, 35, 0.8)")}
+      bg={useColorModeValue(
+        "rgba(255, 255, 255, 0.8)",
+        "rgba(23, 25, 35, 0.8)",
+      )}
       px={8}
       position="sticky"
       top="0"
@@ -55,4 +55,3 @@ export default function Navbar() {
     </Box>
   );
 }
-
