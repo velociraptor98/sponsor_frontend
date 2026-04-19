@@ -1,30 +1,58 @@
 import {
-    Box,
-    Flex,
-    Button,
-    useColorModeValue,
-    Stack,
-    useColorMode,
-} from '@chakra-ui/react'
-import { MoonIcon, SunIcon } from '@chakra-ui/icons'
-import React from "react";
-export default function Navbar() {
-    const { colorMode, toggleColorMode } = useColorMode()
-    return (
-        <>
-            <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4}>
-                <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
-                    <Box>Sponsor List Viewer</Box>
+  Box,
+  Flex,
+  Button,
+  useColorModeValue,
+  Stack,
+  useColorMode,
+  Text,
+  useDisclosure,
+  IconButton,
+  HStack,
+} from "@chakra-ui/react";
+import { MoonIcon, SunIcon, HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 
-                    <Flex alignItems={'center'}>
-                        <Stack direction={'row'} spacing={7}>
-                            <Button onClick={toggleColorMode}>
-                                {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-                            </Button>
-                        </Stack>
-                    </Flex>
-                </Flex>
-            </Box>
-        </>
-    )
+export default function Navbar() {
+  const { colorMode, toggleColorMode } = useColorMode();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  return (
+    <Box
+      bg={useColorModeValue("rgba(255, 255, 255, 0.8)", "rgba(23, 25, 35, 0.8)")}
+      px={8}
+      position="sticky"
+      top="0"
+      zIndex="sticky"
+      backdropFilter="blur(10px)"
+      borderBottom="1px"
+      borderColor={useColorModeValue("gray.200", "gray.700")}
+    >
+      <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
+        <HStack spacing={8} alignItems={"center"}>
+          <Text
+            fontSize="xl"
+            fontWeight="bold"
+            bgGradient="linear(to-r, blue.400, teal.400)"
+            bgClip="text"
+            letterSpacing="tight"
+          >
+            Sponsor List Viewer
+          </Text>
+        </HStack>
+
+        <Flex alignItems={"center"}>
+          <Stack direction={"row"} spacing={4}>
+            <Button
+              onClick={toggleColorMode}
+              variant="ghost"
+              aria-label="Toggle Color Mode"
+            >
+              {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+            </Button>
+          </Stack>
+        </Flex>
+      </Flex>
+    </Box>
+  );
 }
+
