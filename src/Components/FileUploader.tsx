@@ -12,7 +12,6 @@ import {
   Text,
   VStack,
   Icon,
-  Box,
 } from "@chakra-ui/react";
 import { useCSVReader } from "react-papaparse";
 import { FaCloudUploadAlt } from "react-icons/fa";
