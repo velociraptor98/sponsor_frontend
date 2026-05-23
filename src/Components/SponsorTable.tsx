@@ -41,15 +41,19 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
   const [currentSelection, setCurrentSelection] = useState("-");
   const [search, setSearch] = useState("");
 
-  const bgColor = useColorModeValue("white", "gray.800");
-  const headerBg = useColorModeValue("gray.50", "gray.700");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
-  const hoverBg = useColorModeValue("blue.50", "gray.600");
-  const stripeBg = useColorModeValue("white", "gray.800");
-  const evenBg = useColorModeValue("gray.50", "gray.900");
+  // Everforest color tokens
+  const bgColor = useColorModeValue("#fdf6e3", "#2d353b");
+  const headerBg = useColorModeValue("#edeada", "#343f44");
+  const borderColor = useColorModeValue("#e0dcc9", "#475258");
+  const hoverBg = useColorModeValue("#e8e4ca", "#3d484d");
+  const stripeBg = useColorModeValue("#fdf6e3", "#2d353b");
+  const evenBg = useColorModeValue("#f4f0d9", "#343f44");
+  const filterBg = useColorModeValue("#f4f0d9", "#3d484d");
+  const mutedColor = useColorModeValue("#829181", "#7a8478");
+  const fgColor = useColorModeValue("#5c6a72", "#d3c6aa");
 
   const chakraTheme = getTheme(DEFAULT_OPTIONS, { isVirtualized: true });
-  
+
   const theme = useTheme([
     chakraTheme,
     {
@@ -59,6 +63,7 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
       `,
       Row: `
         background-color: ${stripeBg};
+        color: ${fgColor};
         &:nth-of-type(even) {
           background-color: ${evenBg};
         }
@@ -73,17 +78,17 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
         font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        color: var(--chakra-colors-gray-500);
+        color: ${mutedColor};
       `,
       Cell: `
         padding: 14px 12px !important;
         font-size: 14px;
         border-bottom: 1px solid ${borderColor} !important;
+        color: ${fgColor};
       `,
     },
   ]);
 
-  // Memoize and filter data
   const dataMapped = useMemo(() => {
     const nodes = values
       .map((val, index) => ({
@@ -109,7 +114,6 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
     return { nodes };
   }, [values, currentSelection, search]);
 
-  // Memoize the list of towns for the filter dropdown
   const selectionList = useMemo(() => {
     const selectionSet = new Set<string>();
     values.forEach((val) => {
@@ -119,18 +123,14 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
   }, [values]);
 
   const pagination = usePagination(dataMapped, {
-    state: {
-      page: 0,
-      size: 15,
-    },
+    state: { page: 0, size: 15 },
   });
 
   const totalPages = pagination.state.getTotalPages(dataMapped.nodes);
-  const filterBg = useColorModeValue("gray.50", "gray.700");
 
   return (
     <Stack spacing={6} width="100%" maxW="100%" mx="auto">
-      {/* Filters Section */}
+      {/* Filters */}
       <Flex
         direction={{ base: "column", md: "row" }}
         gap={4}
@@ -139,6 +139,7 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
         p={6}
         borderRadius="xl"
         borderWidth="1px"
+        borderColor={borderColor}
         shadow="sm"
       >
         <FormControl flex={2}>
@@ -146,22 +147,27 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
             fontSize="xs"
             fontWeight="black"
             textTransform="uppercase"
-            color="gray.500"
+            color={mutedColor}
             ml={1}
           >
             Search Sponsors
           </FormLabel>
           <InputGroup size="lg">
             <InputLeftElement pointerEvents="none">
-              <FaSearch color="gray.400" />
+              <FaSearch color={mutedColor} />
             </InputLeftElement>
             <Input
               placeholder="Search by company, town or county..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                pagination.fns.onSetPage(0);
+                setSearch(e.target.value);
+              }}
               bg={bgColor}
+              color={fgColor}
               variant="outline"
               borderRadius="lg"
+              borderColor={borderColor}
             />
           </InputGroup>
         </FormControl>
@@ -171,7 +177,7 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
             fontSize="xs"
             fontWeight="black"
             textTransform="uppercase"
-            color="gray.500"
+            color={mutedColor}
             ml={1}
           >
             Filter by Town
@@ -179,9 +185,14 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
           <Select
             size="lg"
             value={currentSelection}
-            onChange={(e) => setCurrentSelection(e.target.value)}
+            onChange={(e) => {
+              pagination.fns.onSetPage(0);
+              setCurrentSelection(e.target.value);
+            }}
             bg={bgColor}
+            color={fgColor}
             borderRadius="lg"
+            borderColor={borderColor}
           >
             <option value="-">All Towns</option>
             {selectionList.map((val, index) => (
@@ -193,10 +204,11 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
         </FormControl>
       </Flex>
 
-      {/* Table Section */}
+      {/* Table */}
       <Box
         bg={bgColor}
         borderWidth="1px"
+        borderColor={borderColor}
         borderRadius="xl"
         shadow="xl"
         overflow="hidden"
@@ -207,14 +219,15 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
           px={6}
           py={4}
           borderBottomWidth="1px"
-          bg={useColorModeValue("white", "gray.800")}
+          borderColor={borderColor}
+          bg={bgColor}
         >
           <HStack spacing={4}>
-            <Text fontWeight="bold" fontSize="lg">
+            <Text fontWeight="bold" fontSize="lg" color={fgColor}>
               Sponsor List
             </Text>
             <Tag
-              colorScheme="blue"
+              colorScheme="forest"
               size="md"
               borderRadius="full"
               variant="subtle"
@@ -224,7 +237,7 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
           </HStack>
 
           <HStack spacing={4}>
-            <Text fontSize="sm" fontWeight="medium" color="gray.500">
+            <Text fontSize="sm" fontWeight="medium" color={mutedColor}>
               Page {pagination.state.page + 1} of {totalPages || 1}
             </Text>
             <HStack spacing={2}>

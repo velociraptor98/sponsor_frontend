@@ -7,25 +7,29 @@ import {
 } from "@chakra-ui/react";
 
 const Footer = () => {
+  const footerBg    = useColorModeValue("#f4f0d9", "#272e33");
+  const footerColor = useColorModeValue("#5c6a72", "#d3c6aa");
+  const borderColor = useColorModeValue("#e0dcc9", "#475258");
+  const gradient    = useColorModeValue(
+    "linear(to-r, #8da101, #35a77c)",
+    "linear(to-r, #a7c080, #83c092)"
+  );
+
   return (
     <Box
       as="footer"
-      bg={useColorModeValue("gray.50", "gray.900")}
-      color={useColorModeValue("gray.700", "gray.200")}
+      bg={footerBg}
+      color={footerColor}
       borderTop="1px"
-      borderColor={useColorModeValue("gray.200", "gray.700")}
+      borderColor={borderColor}
       py={6}
     >
       <Container maxW="container.xl">
-        <Flex
-          direction={{ base: "column", md: "row" }}
-          justify="center"
-          align="center"
-        >
+        <Flex direction={{ base: "column", md: "row" }} justify="center" align="center">
           <Text
             fontSize="sm"
             fontWeight="bold"
-            bgGradient="linear(to-r, blue.400, teal.400)"
+            bgGradient={gradient}
             bgClip="text"
             letterSpacing="tight"
           >
@@ -36,5 +40,5 @@ const Footer = () => {
     </Box>
   );
 };
-export default Footer;
 
+export default Footer;
