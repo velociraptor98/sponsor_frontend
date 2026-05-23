@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   Table,
   Header,
@@ -16,7 +16,6 @@ import {
   HStack,
   IconButton,
   Input,
-  Select,
   Text,
   InputGroup,
   InputLeftElement,
