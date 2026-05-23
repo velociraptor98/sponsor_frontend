@@ -54,10 +54,9 @@ describe("MainContainer File Upload Flow", () => {
     const dropzone = screen.getByText(/Click to select a CSV file/i);
     fireEvent.click(dropzone);
 
-    // After upload, SponsorTable should be rendered.
-    // It has a "Sponsor List" heading and "Test Org" from our mock data.
+    // After upload, SponsorTable should be rendered with data from the mock.
     await waitFor(() => {
-      expect(screen.getByText(/Sponsor List/i)).toBeInTheDocument();
+      expect(screen.getByText(/Search Sponsors/i)).toBeInTheDocument();
       expect(screen.getByText(/Test Org/i)).toBeInTheDocument();
     });
 

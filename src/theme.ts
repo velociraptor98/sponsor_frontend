@@ -21,6 +21,13 @@ const forest = {
 
 const customTheme = extendTheme({
   config,
+  styles: {
+    global: {
+      "*": {
+        transition: "background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
+      },
+    },
+  },
   fonts: {
     heading: `'Inter', -apple-system, BlinkMacSystemFont, sans-serif`,
     body:    `'Inter', -apple-system, BlinkMacSystemFont, sans-serif`,

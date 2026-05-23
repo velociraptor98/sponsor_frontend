@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Box,
   Button,
@@ -15,6 +16,20 @@ import { FaCloudUploadAlt, FaDownload } from "react-icons/fa";
 import Papa from "papaparse";
 import FileUploader from "./FileUploader";
 import SponsorTable from "./SponsorTable";
+
+const heroVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.05 },
+  },
+  exit: { opacity: 0, y: -16, transition: { duration: 0.2 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
+};
 
 const MainContainer = () => {
   const [col, setCol] = useState<string[]>([]);
@@ -57,72 +72,94 @@ const MainContainer = () => {
   };
 
   return (
-    <>
-      {!val.length && (
-        <Flex
-          direction="column"
-          align="center"
-          justify="center"
-          minH="65vh"
-          bg={heroBg}
-          borderRadius="2xl"
-          borderWidth="1px"
-          borderColor={heroBorder}
-          p={12}
-          gap={10}
+    <AnimatePresence exitBeforeEnter>
+      {!val.length ? (
+        <motion.div
+          key="hero"
+          variants={heroVariants}
+          initial="hidden"
+          animate="show"
+          exit="exit"
         >
-          <VStack spacing={6} textAlign="center">
-            <Box bg={iconBg} p={5} borderRadius="2xl">
-              <Icon as={FaCloudUploadAlt} w={12} h={12} color={iconColor} />
-            </Box>
-            <VStack spacing={3}>
-              <Heading
-                size="xl"
-                fontWeight="700"
-                bgGradient={gradient}
-                bgClip="text"
-              >
-                Sponsr
-              </Heading>
-              <Text color={subtleText} maxW="sm" fontSize="md" lineHeight="tall">
-                Load the current sponsor list or upload your own CSV file
-              </Text>
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            minH="65vh"
+            bg={heroBg}
+            borderRadius="2xl"
+            borderWidth="1px"
+            borderColor={heroBorder}
+            p={12}
+            gap={10}
+          >
+            <VStack spacing={6} textAlign="center">
+              <motion.div variants={itemVariants}>
+                <Box bg={iconBg} p={5} borderRadius="2xl">
+                  <Icon as={FaCloudUploadAlt} w={12} h={12} color={iconColor} />
+                </Box>
+              </motion.div>
+              <VStack spacing={3}>
+                <motion.div variants={itemVariants}>
+                  <Heading
+                    size="xl"
+                    fontWeight="700"
+                    bgGradient={gradient}
+                    bgClip="text"
+                  >
+                    Sponsr
+                  </Heading>
+                </motion.div>
+                <motion.div variants={itemVariants}>
+                  <Text color={subtleText} maxW="sm" fontSize="md" lineHeight="tall">
+                    Load the current sponsor list or upload your own CSV file
+                  </Text>
+                </motion.div>
+              </VStack>
             </VStack>
-          </VStack>
 
-          <VStack spacing={4} w="full" maxW="xs">
-            <Button
-              colorScheme="forest"
-              variant="solid"
-              size="lg"
-              leftIcon={<Icon as={FaDownload} />}
-              onClick={loadCurrentList}
-              isLoading={isLoading}
-              loadingText="Loading..."
-              w="full"
-              shadow="md"
-              _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
-              transition="all 0.2s"
-            >
-              Load Current List
-            </Button>
+            <motion.div variants={itemVariants} style={{ width: "100%", maxWidth: "320px" }}>
+              <VStack spacing={4} w="full">
+                <Button
+                  colorScheme="forest"
+                  variant="solid"
+                  size="lg"
+                  leftIcon={<Icon as={FaDownload} />}
+                  onClick={loadCurrentList}
+                  isLoading={isLoading}
+                  loadingText="Loading..."
+                  w="full"
+                  shadow="md"
+                  _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
+                  transition="all 0.2s"
+                >
+                  Load Current List
+                </Button>
 
-            <HStack w="full" align="center">
-              <Divider borderColor={dividerColor} />
-              <Text fontSize="xs" color={subtleText} whiteSpace="nowrap" px={2}>
-                or
-              </Text>
-              <Divider borderColor={dividerColor} />
-            </HStack>
+                <HStack w="full" align="center">
+                  <Divider borderColor={dividerColor} />
+                  <Text fontSize="xs" color={subtleText} whiteSpace="nowrap" px={2}>
+                    or
+                  </Text>
+                  <Divider borderColor={dividerColor} />
+                </HStack>
 
-            <FileUploader setCol={setColumn} setVal={setValue} />
-          </VStack>
-        </Flex>
+                <FileUploader setCol={setColumn} setVal={setValue} />
+              </VStack>
+            </motion.div>
+          </Flex>
+        </motion.div>
+      ) : (
+        <motion.div
+          key="table"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        >
+          <SponsorTable cols={col} values={val} />
+        </motion.div>
       )}
-      {!!val.length && (
-        <SponsorTable cols={col} values={val} />
-      )}
-    </>
+    </AnimatePresence>
   );
 };
 

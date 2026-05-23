@@ -183,9 +183,6 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
           bg={bgColor}
         >
           <HStack spacing={4}>
-            <Text fontWeight="bold" fontSize="lg" color={fgColor}>
-              Sponsor List
-            </Text>
             <Tag
               colorScheme="forest"
               size="md"
