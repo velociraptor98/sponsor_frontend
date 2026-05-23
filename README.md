@@ -1,59 +1,42 @@
-This project was bootstrapped with
-[Create React App](https://github.com/facebook/create-react-app).
+# Sponsrr
 
-## Available Scripts
+A fast, searchable viewer for the UK Home Office's register of licensed visa sponsors. Load the latest list in one click, or upload any CSV export to browse and filter thousands of organisations.
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- **Instant search** — filter by organisation name, town, or county in real time
+- **Load or upload** — fetch the bundled register directly or drop in your own CSV
+- **Paginated table** — 25 results per page with keyboard-friendly navigation
+- **Dark / light mode** — Everforest-themed palette with a smooth animated toggle
+- **Animated transitions** — framer-motion powered entrance and page-switch animations
 
-Runs the app in the development mode.<br /> Open
-[http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Tech stack
 
-The page will reload if you make edits.<br /> You will also see any lint errors
-in the console.
+- [React 18](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- [Chakra UI](https://chakra-ui.com/) — component library and theming
+- [Framer Motion](https://www.framer.com/motion/) — animations
+- [react-table-library](https://react-table-library.com/) — virtualised, paginated table
+- [PapaParse](https://www.papaparse.com/) — CSV parsing
 
-### `npm test`
+## Getting started
 
-Launches the test runner in the interactive watch mode.<br /> See the section
-about
-[running tests](https://facebook.github.io/create-react-app/docs/running-tests)
-for more information.
+```bash
+npm install
+npm start        # http://localhost:3000
+```
 
-### `npm run build`
+## Scripts
 
-Builds the app for production to the `build` folder.<br /> It correctly bundles
-React in production mode and optimizes the build for the best performance.
+| Command | Description |
+|---|---|
+| `npm start` | Start the development server |
+| `npm test` | Run the test suite |
+| `npm run build` | Production build to `build/` |
 
-The build is minified and the filenames include the hashes.<br /> Your app is
-ready to be deployed!
+## CI
 
-See the section about
-[deployment](https://facebook.github.io/create-react-app/docs/deployment) for
-more information.
+GitHub Actions runs the test suite on every push and pull request targeting `main`. See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
-### `npm run eject`
+## Data
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can
-`eject` at any time. This command will remove the single build dependency from
-your project.
-
-Instead, it will copy all the configuration files and the transitive
-dependencies (webpack, Babel, ESLint, etc) right into your project so you have
-full control over them. All of the commands except `eject` will still work, but
-they will point to the copied scripts so you can tweak them. At this point
-you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for
-small and middle deployments, and you shouldn’t feel obligated to use this
-feature. However we understand that this tool wouldn’t be useful if you couldn’t
-customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the
-[Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+The bundled `current_list.csv` is the publicly available register of licensed sponsors published by the UK Home Office. You can replace it at any time or upload a fresh export via the UI.

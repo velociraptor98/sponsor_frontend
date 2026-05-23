@@ -42,7 +42,7 @@ export default function Navbar() {
             bgClip="text"
             letterSpacing="tight"
           >
-            Sponsr
+            Sponsrr
           </Text>
         </HStack>
 

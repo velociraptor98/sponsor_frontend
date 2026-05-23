@@ -4,6 +4,6 @@ import { App } from "./App";
 
 test("renders app header", () => {
   render(<App />);
-  const headerElements = screen.getAllByText(/^Sponsr$/i);
+  const headerElements = screen.getAllByText(/^Sponsrr$/i);
   expect(headerElements.length).toBeGreaterThan(0);
 });
