@@ -2,8 +2,8 @@ import { screen } from "@testing-library/react";
 import { render } from "./test-utils";
 import { App } from "./App";
 
-test("renders sponsor list viewer header", () => {
+test("renders app header", () => {
   render(<App />);
-  const headerElement = screen.getByText(/Sponsor List Viewer/i);
-  expect(headerElement).toBeInTheDocument();
+  const headerElements = screen.getAllByText(/^Sponsr$/i);
+  expect(headerElements.length).toBeGreaterThan(0);
 });

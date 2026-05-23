@@ -82,7 +82,7 @@ const MainContainer = () => {
                 bgGradient={gradient}
                 bgClip="text"
               >
-                Sponsor List Viewer
+                Sponsr
               </Heading>
               <Text color={subtleText} maxW="sm" fontSize="md" lineHeight="tall">
                 Load the current sponsor list or upload your own CSV file

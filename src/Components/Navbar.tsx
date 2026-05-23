@@ -42,7 +42,7 @@ export default function Navbar() {
             bgClip="text"
             letterSpacing="tight"
           >
-            Sponsor List Viewer
+            Sponsr
           </Text>
         </HStack>
 
