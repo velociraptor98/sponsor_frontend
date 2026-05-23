@@ -38,7 +38,7 @@ interface SponsorTableProps {
 }
 
 const SponsorTable = ({ cols, values }: SponsorTableProps) => {
-  const [currentSelection, setCurrentSelection] = useState("-");
+  const [currentSelection] = useState("-");
   const [search, setSearch] = useState("");
 
   // Everforest color tokens
@@ -114,14 +114,6 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
     return { nodes };
   }, [values, currentSelection, search]);
 
-  const selectionList = useMemo(() => {
-    const selectionSet = new Set<string>();
-    values.forEach((val) => {
-      if (val[1]) selectionSet.add(val[1]);
-    });
-    return Array.from(selectionSet).sort();
-  }, [values]);
-
   const pagination = usePagination(dataMapped, {
     state: { page: 0, size: 15 },
   });
@@ -170,37 +162,6 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
               borderColor={borderColor}
             />
           </InputGroup>
-        </FormControl>
-
-        <FormControl flex={1} maxW={{ md: "300px" }}>
-          <FormLabel
-            fontSize="xs"
-            fontWeight="black"
-            textTransform="uppercase"
-            color={mutedColor}
-            ml={1}
-          >
-            Filter by Town
-          </FormLabel>
-          <Select
-            size="lg"
-            value={currentSelection}
-            onChange={(e) => {
-              pagination.fns.onSetPage(0);
-              setCurrentSelection(e.target.value);
-            }}
-            bg={bgColor}
-            color={fgColor}
-            borderRadius="lg"
-            borderColor={borderColor}
-          >
-            <option value="-">All Towns</option>
-            {selectionList.map((val, index) => (
-              <option key={index} value={val}>
-                {val}
-              </option>
-            ))}
-          </Select>
         </FormControl>
       </Flex>
 

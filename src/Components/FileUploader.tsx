@@ -51,7 +51,7 @@ const FileUploader = (props: FileUploaderProps) => {
           setOverlay(<OverlayBody />);
           onOpen();
         }}
-        px={8}
+        w="full"
         shadow="md"
         _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
         transition="all 0.2s"
