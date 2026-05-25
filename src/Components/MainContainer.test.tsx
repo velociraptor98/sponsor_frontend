@@ -3,7 +3,7 @@ import { render } from "../test-utils";
 import MainContainer from "./MainContainer";
 
 // Mock react-papaparse's useCSVReader
-jest.mock("react-papaparse", () => ({
+vi.mock("react-papaparse", () => ({
   useCSVReader: () => ({
     CSVReader: ({ children, onUploadAccepted }: any) => {
       const getRootProps = () => ({
