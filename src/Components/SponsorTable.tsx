@@ -12,6 +12,7 @@ import { useTheme } from "@table-library/react-table-library/theme";
 import { usePagination } from "@table-library/react-table-library/pagination";
 import {
   Box,
+  Divider,
   Flex,
   HStack,
   IconButton,
@@ -19,7 +20,9 @@ import {
   Text,
   InputGroup,
   InputLeftElement,
+  SimpleGrid,
   Stack,
+  useBreakpointValue,
   useColorModeValue,
   Tag,
   FormControl,
@@ -39,6 +42,8 @@ interface SponsorTableProps {
 const SponsorTable = ({ cols, values }: SponsorTableProps) => {
   const [currentSelection] = useState("-");
   const [search, setSearch] = useState("");
+
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   // Everforest color tokens
   const bgColor = useColorModeValue("#fdf6e3", "#2d353b");
@@ -119,6 +124,19 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
 
   const totalPages = pagination.state.getTotalPages(dataMapped.nodes);
 
+  const currentPageNodes = useMemo(() => {
+    const start = pagination.state.page * pagination.state.size;
+    return dataMapped.nodes.slice(start, start + pagination.state.size);
+  }, [dataMapped.nodes, pagination.state.page, pagination.state.size]);
+
+  const labelStyle = {
+    fontSize: "xs" as const,
+    fontWeight: "black" as const,
+    textTransform: "uppercase" as const,
+    color: mutedColor,
+    mb: 0.5,
+  };
+
   return (
     <Stack spacing={6} width="100%" maxW="100%" mx="auto">
       {/* Filters */}
@@ -164,7 +182,7 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
         </FormControl>
       </Flex>
 
-      {/* Table */}
+      {/* Table / Cards */}
       <Box
         bg={bgColor}
         borderWidth="1px"
@@ -173,6 +191,7 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
         shadow="xl"
         overflow="hidden"
       >
+        {/* Pagination header */}
         <Flex
           justify="space-between"
           align="center"
@@ -222,37 +241,75 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
           </HStack>
         </Flex>
 
-        <Box overflowX="auto">
-          <Table
-            data={dataMapped}
-            theme={theme}
-            pagination={pagination}
-            layout={{ isDiv: true, fixedHeader: true }}
-          >
-            {(tableList: any) => (
-              <>
-                <Header>
-                  <HeaderRow>
-                    {cols.map((value) => (
-                      <HeaderCell key={value}>{value}</HeaderCell>
+        {isMobile ? (
+          /* Card layout for mobile */
+          <Stack spacing={0} divider={<Divider borderColor={borderColor} />}>
+            {currentPageNodes.map((item, i) => (
+              <Box
+                key={item.id}
+                px={5}
+                py={4}
+                bg={i % 2 === 0 ? stripeBg : evenBg}
+                _hover={{ bg: hoverBg, transition: "background-color 0.1s ease-in-out" }}
+              >
+                <Text fontWeight="700" fontSize="md" color={fgColor} mb={3}>
+                  {item.org}
+                </Text>
+                <SimpleGrid columns={2} spacingX={6} spacingY={3}>
+                  <Box>
+                    <Text {...labelStyle}>{cols[1]}</Text>
+                    <Text fontSize="sm" color={fgColor}>{item.town}</Text>
+                  </Box>
+                  <Box>
+                    <Text {...labelStyle}>{cols[2]}</Text>
+                    <Text fontSize="sm" color={fgColor}>{item.county}</Text>
+                  </Box>
+                  <Box>
+                    <Text {...labelStyle}>{cols[3]}</Text>
+                    <Text fontSize="sm" color={fgColor}>{item.type}</Text>
+                  </Box>
+                  <Box>
+                    <Text {...labelStyle}>{cols[4]}</Text>
+                    <Text fontSize="sm" color={fgColor}>{item.route}</Text>
+                  </Box>
+                </SimpleGrid>
+              </Box>
+            ))}
+          </Stack>
+        ) : (
+          /* Table layout for desktop */
+          <Box overflowX="auto">
+            <Table
+              data={dataMapped}
+              theme={theme}
+              pagination={pagination}
+              layout={{ isDiv: true, fixedHeader: true }}
+            >
+              {(tableList: any) => (
+                <>
+                  <Header>
+                    <HeaderRow>
+                      {cols.map((value) => (
+                        <HeaderCell key={value}>{value}</HeaderCell>
+                      ))}
+                    </HeaderRow>
+                  </Header>
+                  <Body>
+                    {tableList.map((item: any) => (
+                      <Row key={item.id} item={item}>
+                        <Cell>{item.org}</Cell>
+                        <Cell>{item.town}</Cell>
+                        <Cell>{item.county}</Cell>
+                        <Cell>{item.type}</Cell>
+                        <Cell>{item.route}</Cell>
+                      </Row>
                     ))}
-                  </HeaderRow>
-                </Header>
-                <Body>
-                  {tableList.map((item: any) => (
-                    <Row key={item.id} item={item}>
-                      <Cell>{item.org}</Cell>
-                      <Cell>{item.town}</Cell>
-                      <Cell>{item.county}</Cell>
-                      <Cell>{item.type}</Cell>
-                      <Cell>{item.route}</Cell>
-                    </Row>
-                  ))}
-                </Body>
-              </>
-            )}
-          </Table>
-        </Box>
+                  </Body>
+                </>
+              )}
+            </Table>
+          </Box>
+        )}
       </Box>
     </Stack>
   );
