@@ -1,7 +1,7 @@
 import * as React from "react"
+import { keyframes } from "@emotion/react"
 import {
   chakra,
-  keyframes,
   ImageProps,
   forwardRef,
   usePrefersReducedMotion,

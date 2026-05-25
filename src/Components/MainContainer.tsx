@@ -120,7 +120,7 @@ const MainContainer = () => {
 
   return (
     <>
-      <AnimatePresence exitBeforeEnter>
+      <AnimatePresence mode="wait">
         {!val.length ? (
           <motion.div
             key="hero"
