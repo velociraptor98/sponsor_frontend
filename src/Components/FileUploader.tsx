@@ -31,9 +31,7 @@ const FileUploader = (props: FileUploaderProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [overlay, setOverlay] = React.useState(<OverlayBody />);
 
-  const modalBg        = useColorModeValue("#fdf6e3", "#343f44");
   const modalText      = useColorModeValue("#5c6a72", "#d3c6aa");
-  const footerBg       = useColorModeValue("#f4f0d9", "#3d484d");
   const dropBorder     = useColorModeValue("#e0dcc9", "#475258");
   const iconColor      = useColorModeValue("#8da101", "#a7c080");
   const hoverBgColor   = useColorModeValue("#f4f0d9", "#3d484d");
@@ -61,7 +59,7 @@ const FileUploader = (props: FileUploaderProps) => {
 
       <Modal isCentered isOpen={isOpen} onClose={onClose} size="sm">
         {overlay}
-        <ModalContent borderRadius="xl" bg={modalBg} color={modalText}>
+        <ModalContent layerStyle="glassStrong" borderRadius="xl" color={modalText}>
           <ModalHeader textAlign="center" pt={8}>
             Upload CSV file
           </ModalHeader>
@@ -101,7 +99,7 @@ const FileUploader = (props: FileUploaderProps) => {
               )}
             </CSVReader>
           </ModalBody>
-          <ModalFooter bg={footerBg} borderBottomRadius="xl">
+          <ModalFooter borderBottomRadius="xl">
             <Button variant="ghost" mr={3} onClick={onClose}>
               Cancel
             </Button>

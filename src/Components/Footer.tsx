@@ -7,9 +7,7 @@ import {
 } from "@chakra-ui/react";
 
 const Footer = () => {
-  const footerBg    = useColorModeValue("#f4f0d9", "#272e33");
   const footerColor = useColorModeValue("#5c6a72", "#d3c6aa");
-  const borderColor = useColorModeValue("#e0dcc9", "#475258");
   const gradient    = useColorModeValue(
     "linear(to-r, #8da101, #35a77c)",
     "linear(to-r, #a7c080, #83c092)"
@@ -18,10 +16,10 @@ const Footer = () => {
   return (
     <Box
       as="footer"
-      bg={footerBg}
+      layerStyle="glass"
       color={footerColor}
-      borderTop="1px"
-      borderColor={borderColor}
+      borderWidth="0"
+      borderTopWidth="1px"
       py={6}
     >
       <Container maxW="container.xl">

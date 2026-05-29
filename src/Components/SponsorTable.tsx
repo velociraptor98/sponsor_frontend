@@ -45,16 +45,17 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
 
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  // Everforest color tokens
-  const bgColor = useColorModeValue("#fdf6e3", "#2d353b");
-  const headerBg = useColorModeValue("#edeada", "#343f44");
+  // Everforest tokens + glass-aware table surfaces
   const borderColor = useColorModeValue("#e0dcc9", "#475258");
-  const hoverBg = useColorModeValue("#e8e4ca", "#3d484d");
-  const stripeBg = useColorModeValue("#fdf6e3", "#2d353b");
-  const evenBg = useColorModeValue("#f4f0d9", "#343f44");
-  const filterBg = useColorModeValue("#f4f0d9", "#3d484d");
   const mutedColor = useColorModeValue("#829181", "#7a8478");
   const fgColor = useColorModeValue("#5c6a72", "#d3c6aa");
+  const inputBg = useColorModeValue("rgba(253, 246, 227, 0.65)", "rgba(45, 53, 59, 0.5)");
+  const panelBg = useColorModeValue("rgba(253, 246, 227, 0.6)", "rgba(45, 53, 59, 0.5)");
+  const headerBg = useColorModeValue("rgba(141, 161, 1, 0.07)", "rgba(167, 192, 128, 0.07)");
+  const rowEvenBg = useColorModeValue("rgba(92, 106, 114, 0.045)", "rgba(255, 255, 255, 0.035)");
+  const rowHoverBg = useColorModeValue("rgba(141, 161, 1, 0.14)", "rgba(167, 192, 128, 0.13)");
+  const cellBorder = useColorModeValue("rgba(92, 106, 114, 0.12)", "rgba(255, 255, 255, 0.07)");
+  const headBorder = useColorModeValue("rgba(141, 161, 1, 0.35)", "rgba(167, 192, 128, 0.3)");
 
   const chakraTheme = getTheme(DEFAULT_OPTIONS, { isVirtualized: true });
 
@@ -63,21 +64,22 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
     {
       HeaderRow: `
         background-color: ${headerBg};
+        backdrop-filter: blur(8px);
         font-weight: 800;
       `,
       Row: `
-        background-color: ${stripeBg};
+        background-color: transparent;
         color: ${fgColor};
+        transition: background-color 0.15s ease;
         &:nth-of-type(even) {
-          background-color: ${evenBg};
+          background-color: ${rowEvenBg};
         }
         &:hover {
-          background-color: ${hoverBg} !important;
-          transition: background-color 0.1s ease-in-out;
+          background-color: ${rowHoverBg} !important;
         }
       `,
       HeaderCell: `
-        border-bottom: 2px solid ${borderColor} !important;
+        border-bottom: 2px solid ${headBorder} !important;
         padding: 16px 12px !important;
         font-size: 11px;
         text-transform: uppercase;
@@ -87,7 +89,7 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
       Cell: `
         padding: 14px 12px !important;
         font-size: 14px;
-        border-bottom: 1px solid ${borderColor} !important;
+        border-bottom: 1px solid ${cellBorder} !important;
         color: ${fgColor};
       `,
     },
@@ -141,15 +143,12 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
     <Stack spacing={6} width="100%" maxW="100%" mx="auto">
       {/* Filters */}
       <Flex
+        layerStyle="glass"
         direction={{ base: "column", md: "row" }}
         gap={4}
         align={{ base: "stretch", md: "flex-end" }}
-        bg={filterBg}
         p={6}
         borderRadius="xl"
-        borderWidth="1px"
-        borderColor={borderColor}
-        shadow="sm"
       >
         <FormControl flex={2}>
           <FormLabel
@@ -172,7 +171,7 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
                 pagination.fns.onSetPage(0);
                 setSearch(e.target.value);
               }}
-              bg={bgColor}
+              bg={inputBg}
               color={fgColor}
               variant="outline"
               borderRadius="lg"
@@ -183,14 +182,7 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
       </Flex>
 
       {/* Table / Cards */}
-      <Box
-        bg={bgColor}
-        borderWidth="1px"
-        borderColor={borderColor}
-        borderRadius="xl"
-        shadow="xl"
-        overflow="hidden"
-      >
+      <Box layerStyle="glass" borderRadius="xl" _before={{ display: "none" }}>
         {/* Pagination header */}
         <Flex
           justify="space-between"
@@ -198,8 +190,8 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
           px={6}
           py={4}
           borderBottomWidth="1px"
-          borderColor={borderColor}
-          bg={bgColor}
+          borderColor={cellBorder}
+          bg="transparent"
         >
           <HStack spacing={4}>
             <Tag
@@ -243,14 +235,19 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
 
         {isMobile ? (
           /* Card layout for mobile */
-          <Stack spacing={0} divider={<Divider borderColor={borderColor} />}>
+          <Stack
+            spacing={0}
+            bg={panelBg}
+            divider={<Divider borderColor={cellBorder} />}
+          >
             {currentPageNodes.map((item, i) => (
               <Box
                 key={item.id}
                 px={5}
                 py={4}
-                bg={i % 2 === 0 ? stripeBg : evenBg}
-                _hover={{ bg: hoverBg, transition: "background-color 0.1s ease-in-out" }}
+                bg={i % 2 === 0 ? "transparent" : rowEvenBg}
+                transition="background-color 0.15s ease"
+                _hover={{ bg: rowHoverBg }}
               >
                 <Text fontWeight="700" fontSize="md" color={fgColor} mb={3}>
                   {item.org}
@@ -278,7 +275,7 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
           </Stack>
         ) : (
           /* Table layout for desktop */
-          <Box overflowX="auto">
+          <Box overflowX="auto" bg={panelBg}>
             <Table
               data={dataMapped}
               theme={theme}

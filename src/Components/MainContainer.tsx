@@ -57,19 +57,14 @@ const MainContainer = () => {
   const setColumn = (value: string[]): any => setCol(value);
   const setValue = (value: string[][]): any => setVal(value);
 
-  const heroBg = useColorModeValue("#f4f0d9", "#343f44");
-  const heroBorder = useColorModeValue("#e0dcc9", "#475258");
   const subtleText = useColorModeValue("#829181", "#9da9a0");
   const dividerColor = useColorModeValue("#c9c19f", "#56635f");
-  const iconBg = useColorModeValue("#e8e4ca", "#3d484d");
   const iconColor = useColorModeValue("#8da101", "#a7c080");
   const gradient = useColorModeValue(
     "linear(to-r, #8da101, #35a77c)",
     "linear(to-r, #a7c080, #83c092)",
   );
-  const modalBg = useColorModeValue("#fdf6e3", "#343f44");
   const modalText = useColorModeValue("#5c6a72", "#d3c6aa");
-  const footerBg = useColorModeValue("#f4f0d9", "#3d484d");
 
   const showError = (message: string) => {
     setErrorMessage(message);
@@ -130,20 +125,18 @@ const MainContainer = () => {
             exit="exit"
           >
             <Flex
+              layerStyle="glass"
               direction="column"
               align="center"
               justify="center"
               minH="65vh"
-              bg={heroBg}
               borderRadius="2xl"
-              borderWidth="1px"
-              borderColor={heroBorder}
               p={12}
               gap={10}
             >
               <VStack spacing={6} textAlign="center">
                 <motion.div variants={itemVariants}>
-                  <Box bg={iconBg} p={5} borderRadius="2xl">
+                  <Box layerStyle="glass" p={5} borderRadius="2xl">
                     <Icon
                       as={FaCloudUploadAlt}
                       w={12}
@@ -229,7 +222,7 @@ const MainContainer = () => {
 
       <Modal isCentered isOpen={isErrorOpen} onClose={onErrorClose} size="sm">
         <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
-        <ModalContent borderRadius="xl" bg={modalBg} color={modalText}>
+        <ModalContent layerStyle="glassStrong" borderRadius="xl" color={modalText}>
           <ModalHeader display="flex" alignItems="center" gap={3} pt={8}>
             <Icon as={FaExclamationTriangle} color="red.400" />
             Failed to load
@@ -240,7 +233,7 @@ const MainContainer = () => {
               {errorMessage}
             </Text>
           </ModalBody>
-          <ModalFooter bg={footerBg} borderBottomRadius="xl">
+          <ModalFooter borderBottomRadius="xl">
             <Button variant="ghost" onClick={onErrorClose}>
               Dismiss
             </Button>
