@@ -20,13 +20,10 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
-import {
-  FaCloudUploadAlt,
-  FaDownload,
-  FaExclamationTriangle,
-} from "react-icons/fa";
+import { FaDownload, FaExclamationTriangle } from "react-icons/fa";
 import Papa from "papaparse";
 import FileUploader from "./FileUploader";
+import HeroIllustration from "./HeroIllustration";
 import SponsorTable from "./SponsorTable";
 
 const heroVariants = {
@@ -59,7 +56,6 @@ const MainContainer = () => {
 
   const subtleText = useColorModeValue("#829181", "#9da9a0");
   const dividerColor = useColorModeValue("#c9c19f", "#56635f");
-  const iconColor = useColorModeValue("#8da101", "#a7c080");
   const gradient = useColorModeValue(
     "linear(to-r, #8da101, #35a77c)",
     "linear(to-r, #a7c080, #83c092)",
@@ -137,12 +133,7 @@ const MainContainer = () => {
               <VStack spacing={6} textAlign="center">
                 <motion.div variants={itemVariants}>
                   <Box layerStyle="glass" p={5} borderRadius="2xl">
-                    <Icon
-                      as={FaCloudUploadAlt}
-                      w={12}
-                      h={12}
-                      color={iconColor}
-                    />
+                    <HeroIllustration />
                   </Box>
                 </motion.div>
                 <VStack spacing={3}>

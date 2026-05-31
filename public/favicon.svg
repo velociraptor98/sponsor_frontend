@@ -1,12 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <rect width="32" height="32" rx="7" fill="#8da101"/>
-  <text
-    x="16"
-    y="23"
-    font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif"
-    font-size="21"
-    font-weight="700"
-    text-anchor="middle"
+  <circle cx="16" cy="16" r="13" fill="none" stroke="#fdf6e3" stroke-width="0.8" stroke-opacity="0.4"/>
+  <path
+    d="M16 5L18.6 12.4L26.5 12.6L20.3 17.4L22.5 24.9L16 20.5L9.5 24.9L11.7 17.4L5.5 12.6L13.3 12.4Z"
     fill="#fdf6e3"
-  >S</text>
+  />
 </svg>
