@@ -4,7 +4,10 @@ import {
   Text,
   useColorModeValue,
   Flex,
+  IconButton,
+  Link,
 } from "@chakra-ui/react";
+import { FaGithub } from "react-icons/fa";
 
 const Footer = () => {
   const footerColor = useColorModeValue("#5c6a72", "#d3c6aa");
@@ -23,7 +26,7 @@ const Footer = () => {
       py={6}
     >
       <Container maxW="container.xl">
-        <Flex direction={{ base: "column", md: "row" }} justify="center" align="center">
+        <Flex direction={{ base: "column", md: "row" }} justify="center" align="center" gap={3} position="relative">
           <Text
             fontSize="sm"
             fontWeight="bold"
@@ -33,6 +36,19 @@ const Footer = () => {
           >
             Made with ❤️, hope this helps in your search
           </Text>
+          <IconButton
+            as={Link}
+            href="https://github.com/velociraptor98/sponsor_frontend"
+            isExternal
+            aria-label="View source on GitHub"
+            icon={<FaGithub />}
+            variant="ghost"
+            size="sm"
+            color={footerColor}
+            fontSize="xl"
+            position={{ base: "static", md: "absolute" }}
+            right={{ md: 0 }}
+          />
         </Flex>
       </Container>
     </Box>
