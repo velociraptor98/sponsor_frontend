@@ -72,14 +72,20 @@ const MainContainer = () => {
     try {
       const response = await fetch("/current_list.csv");
       if (!response.ok) {
+        setIsLoading(false);
         showError(
           `Could not fetch the sponsor list (HTTP ${response.status} ${response.statusText}).`,
         );
         return;
       }
       const text = await response.text();
+      // The list is ~140k rows; parse in a worker so the UI stays responsive.
+      // With worker: true the callbacks are async, so the loading state is
+      // cleared there rather than in a finally block.
       Papa.parse<string[]>(text, {
+        worker: true,
         complete: (results) => {
+          setIsLoading(false);
           const data = results.data;
           if (data.length > 0) {
             setCol(data[0]);
@@ -95,17 +101,17 @@ const MainContainer = () => {
           }
         },
         error: (err: Error) => {
+          setIsLoading(false);
           showError(`Failed to parse the CSV file: ${err.message}`);
         },
       });
     } catch (err) {
+      setIsLoading(false);
       showError(
         err instanceof Error
           ? err.message
           : "An unexpected error occurred while loading the list.",
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 

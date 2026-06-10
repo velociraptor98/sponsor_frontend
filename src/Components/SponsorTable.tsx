@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Table,
   Header,
@@ -50,8 +50,8 @@ interface SponsorTableProps {
 }
 
 const SponsorTable = ({ cols, values }: SponsorTableProps) => {
-  const [currentSelection] = useState("-");
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
   const [pageInput, setPageInput] = useState("1");
@@ -108,32 +108,38 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
     },
   ]);
 
-  const dataMapped = useMemo(() => {
-    const nodes = values
-      .map((val, index) => ({
+  // Filtering 140k rows on every keystroke is too slow, so the filter runs
+  // against a debounced copy of the search text.
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 200);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const allNodes = useMemo(
+    () =>
+      values.map((val, index) => ({
         id: index,
         org: val[0],
         town: val[1],
         county: val[2],
         type: val[3],
         route: val[4],
-      }))
-      .filter((item) => {
-        const matchesSelection =
-          currentSelection === "-" || item.town === currentSelection;
-        const searchTerm = search.toLowerCase();
-        const matchesSearch =
-          search === "" ||
-          (item.org && item.org.toLowerCase().includes(searchTerm)) ||
-          (item.town && item.town.toLowerCase().includes(searchTerm)) ||
-          (item.county && item.county.toLowerCase().includes(searchTerm));
+      })),
+    [values],
+  );
 
-        return matchesSelection && matchesSearch;
-      });
-    return { nodes };
-  }, [values, currentSelection, search]);
+  const filteredNodes = useMemo(() => {
+    const searchTerm = debouncedSearch.trim().toLowerCase();
+    if (searchTerm === "") return allNodes;
+    return allNodes.filter(
+      (item) =>
+        (item.org && item.org.toLowerCase().includes(searchTerm)) ||
+        (item.town && item.town.toLowerCase().includes(searchTerm)) ||
+        (item.county && item.county.toLowerCase().includes(searchTerm)),
+    );
+  }, [allNodes, debouncedSearch]);
 
-  const totalResults = dataMapped.nodes.length;
+  const totalResults = filteredNodes.length;
   const totalPages = Math.max(1, Math.ceil(totalResults / pageSize));
   // Clamp in case filtering shrank the result set below the current page.
   const currentPage = Math.min(page, totalPages - 1);
@@ -146,8 +152,8 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
 
   const currentPageNodes = useMemo(() => {
     const start = currentPage * pageSize;
-    return dataMapped.nodes.slice(start, start + pageSize);
-  }, [dataMapped.nodes, currentPage, pageSize]);
+    return filteredNodes.slice(start, start + pageSize);
+  }, [filteredNodes, currentPage, pageSize]);
 
   const tableData = useMemo(
     () => ({ nodes: currentPageNodes }),

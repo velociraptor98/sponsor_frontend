@@ -66,6 +66,7 @@ const FileUploader = (props: FileUploaderProps) => {
           <ModalCloseButton />
           <ModalBody pb={8}>
             <CSVReader
+              config={{ worker: true }}
               onUploadAccepted={(results: any) => {
                 const value: string[][] = results.data;
                 const filtered = value.filter((_, i) => i !== 0);
