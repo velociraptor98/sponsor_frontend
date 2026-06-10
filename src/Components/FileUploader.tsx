@@ -18,8 +18,9 @@ import { useCSVReader } from "react-papaparse";
 import { FaCloudUploadAlt } from "react-icons/fa";
 
 interface FileUploaderProps {
-  setCol: (value: string[]) => {};
-  setVal: (value: string[][]) => {};
+  setCol: (value: string[]) => void;
+  setVal: (value: string[][]) => void;
+  onError: (message: string) => void;
 }
 
 const FileUploader = (props: FileUploaderProps) => {
@@ -68,10 +69,21 @@ const FileUploader = (props: FileUploaderProps) => {
             <CSVReader
               config={{ worker: true }}
               onUploadAccepted={(results: any) => {
-                const value: string[][] = results.data;
-                const filtered = value.filter((_, i) => i !== 0);
-                props.setCol(value[0]);
-                props.setVal(filtered);
+                const [header, ...rows] = (results.data ?? []) as string[][];
+                const body = rows.filter((row) =>
+                  row.some((cell) => cell && cell.trim() !== ""),
+                );
+                // The table renders five fixed columns, so anything narrower
+                // than that can't be a sponsor list.
+                if (!header || header.length < 5 || body.length === 0) {
+                  onClose();
+                  props.onError(
+                    "That file doesn't look like a sponsor list. It needs a header row, at least one data row, and five columns (organisation, town, county, type and route).",
+                  );
+                  return;
+                }
+                props.setCol(header);
+                props.setVal(body);
                 onClose();
               }}
               noDrag

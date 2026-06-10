@@ -20,7 +20,7 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
-import { FaDownload, FaExclamationTriangle } from "react-icons/fa";
+import { FaArrowLeft, FaDownload, FaExclamationTriangle } from "react-icons/fa";
 import Papa from "papaparse";
 import FileUploader from "./FileUploader";
 import HeroIllustration from "./HeroIllustration";
@@ -51,8 +51,10 @@ const MainContainer = () => {
     onClose: onErrorClose,
   } = useDisclosure();
 
-  const setColumn = (value: string[]): any => setCol(value);
-  const setValue = (value: string[][]): any => setVal(value);
+  const resetList = () => {
+    setCol([]);
+    setVal([]);
+  };
 
   const subtleText = useColorModeValue("#829181", "#9da9a0");
   const dividerColor = useColorModeValue("#c9c19f", "#56635f");
@@ -200,7 +202,11 @@ const MainContainer = () => {
                     <Divider borderColor={dividerColor} />
                   </HStack>
 
-                  <FileUploader setCol={setColumn} setVal={setValue} />
+                  <FileUploader
+                    setCol={setCol}
+                    setVal={setVal}
+                    onError={showError}
+                  />
                 </VStack>
               </motion.div>
             </Flex>
@@ -212,6 +218,16 @@ const MainContainer = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
+            <Button
+              variant="ghost"
+              colorScheme="forest"
+              size="sm"
+              leftIcon={<Icon as={FaArrowLeft} />}
+              onClick={resetList}
+              mb={4}
+            >
+              Start Page
+            </Button>
             <SponsorTable cols={col} values={val} />
           </motion.div>
         )}
@@ -219,7 +235,11 @@ const MainContainer = () => {
 
       <Modal isCentered isOpen={isErrorOpen} onClose={onErrorClose} size="sm">
         <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
-        <ModalContent layerStyle="glassStrong" borderRadius="xl" color={modalText}>
+        <ModalContent
+          layerStyle="glassStrong"
+          borderRadius="xl"
+          color={modalText}
+        >
           <ModalHeader display="flex" alignItems="center" gap={3} pt={8}>
             <Icon as={FaExclamationTriangle} color="red.400" />
             Failed to load

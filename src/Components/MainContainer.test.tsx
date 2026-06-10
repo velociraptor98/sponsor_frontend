@@ -63,4 +63,22 @@ describe("MainContainer File Upload Flow", () => {
     // Verify upload button is gone
     expect(screen.queryByText(/Upload Sponsor CSV/i)).not.toBeInTheDocument();
   });
+
+  test("returns to the hero screen when 'Start Page' is clicked", async () => {
+    render(<MainContainer />);
+
+    fireEvent.click(screen.getByText(/Upload Sponsor CSV/i));
+    fireEvent.click(screen.getByText(/Click to select a CSV file/i));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Test Org/i)).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText(/Start Page/i));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Upload Sponsor CSV/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/Test Org/i)).not.toBeInTheDocument();
+  });
 });

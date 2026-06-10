@@ -16,14 +16,14 @@
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^4.0.0",
     "framer-motion": "^11.18.2",
-    "jsdom": "^25.0.0",
+    "jsdom": "^29.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.6.0",
     "react-papaparse": "^4.4.0",
     "typescript": "^5.8.3",
     "vite": "^6.0.0",
-    "vitest": "^2.0.0",
+    "vitest": "^3.2.6",
     "web-vitals": "^4.2.4"
   },
   "scripts": {
@@ -31,6 +31,7 @@
     "build": "vite build",
     "test": "vitest run",
     "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview"
   },
   "browserslist": {
