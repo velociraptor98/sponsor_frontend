@@ -24,7 +24,6 @@ import {
   SimpleGrid,
   Stack,
   useBreakpointValue,
-  useColorModeValue,
   Tag,
   FormControl,
   FormLabel,
@@ -39,10 +38,24 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaSearch,
-  FaSearchMinus,
 } from "react-icons/fa";
+import { Breath } from "./Breath";
 
 const PAGE_SIZE_OPTIONS = [15, 25, 50, 100];
+
+// The table library takes plain CSS strings, so the brand tokens are referenced
+// through the custom properties Chakra emits for them. They track colour mode
+// on their own, which keeps the palette defined in exactly one place.
+const token = {
+  text: "var(--chakra-colors-text)",
+  textBody: "var(--chakra-colors-text-body)",
+  textMuted: "var(--chakra-colors-text-muted)",
+  border: "var(--chakra-colors-border)",
+  borderStrong: "var(--chakra-colors-border-strong)",
+  accentSoft: "var(--chakra-colors-accent-soft)",
+  rowAlt: "var(--chakra-colors-row-alt)",
+  surfaceRaised: "var(--chakra-colors-surface-raised)",
+};
 
 interface SponsorTableProps {
   cols: string[];
@@ -58,52 +71,41 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
 
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  // Everforest tokens + glass-aware table surfaces
-  const borderColor = useColorModeValue("#e0dcc9", "#475258");
-  const mutedColor = useColorModeValue("#829181", "#7a8478");
-  const fgColor = useColorModeValue("#5c6a72", "#d3c6aa");
-  const inputBg = useColorModeValue("rgba(253, 246, 227, 0.65)", "rgba(45, 53, 59, 0.5)");
-  const panelBg = useColorModeValue("rgba(253, 246, 227, 0.6)", "rgba(45, 53, 59, 0.5)");
-  const headerBg = useColorModeValue("rgba(141, 161, 1, 0.07)", "rgba(167, 192, 128, 0.07)");
-  const rowEvenBg = useColorModeValue("rgba(92, 106, 114, 0.045)", "rgba(255, 255, 255, 0.035)");
-  const rowHoverBg = useColorModeValue("rgba(141, 161, 1, 0.14)", "rgba(167, 192, 128, 0.13)");
-  const cellBorder = useColorModeValue("rgba(92, 106, 114, 0.12)", "rgba(255, 255, 255, 0.07)");
-  const headBorder = useColorModeValue("rgba(141, 161, 1, 0.35)", "rgba(167, 192, 128, 0.3)");
-
   const chakraTheme = getTheme(DEFAULT_OPTIONS, { isVirtualized: true });
 
   const theme = useTheme([
     chakraTheme,
     {
       HeaderRow: `
-        background-color: ${headerBg};
-        backdrop-filter: blur(8px);
-        font-weight: 800;
+        background-color: ${token.surfaceRaised};
       `,
       Row: `
         background-color: transparent;
-        color: ${fgColor};
+        color: ${token.textBody};
         transition: background-color 0.15s ease;
         &:nth-of-type(even) {
-          background-color: ${rowEvenBg};
+          background-color: ${token.rowAlt};
         }
         &:hover {
-          background-color: ${rowHoverBg} !important;
+          background-color: ${token.accentSoft} !important;
         }
       `,
+      // The system voice: labels, captions, metadata.
       HeaderCell: `
-        border-bottom: 2px solid ${headBorder} !important;
+        border-bottom: 1px solid ${token.borderStrong} !important;
         padding: 16px 12px !important;
+        font-family: 'Space Mono', ui-monospace, monospace;
         font-size: 11px;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: ${mutedColor};
+        letter-spacing: 0.12em;
+        color: ${token.textMuted};
       `,
       Cell: `
         padding: 14px 12px !important;
         font-size: 14px;
-        border-bottom: 1px solid ${cellBorder} !important;
-        color: ${fgColor};
+        border-bottom: 1px solid ${token.border} !important;
+        color: ${token.textBody};
       `,
     },
   ]);
@@ -164,14 +166,6 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
   const rangeStart = isEmpty ? 0 : currentPage * pageSize + 1;
   const rangeEnd = Math.min((currentPage + 1) * pageSize, totalResults);
 
-  const labelStyle = {
-    fontSize: "xs" as const,
-    fontWeight: "black" as const,
-    textTransform: "uppercase" as const,
-    color: mutedColor,
-    mb: 0.5,
-  };
-
   return (
     <Stack spacing={6} width="100%" maxW="100%" mx="auto">
       {/* Filters */}
@@ -184,18 +178,10 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
         borderRadius="xl"
       >
         <FormControl flex={2}>
-          <FormLabel
-            fontSize="xs"
-            fontWeight="black"
-            textTransform="uppercase"
-            color={mutedColor}
-            ml={1}
-          >
-            Search Sponsors
-          </FormLabel>
+          <FormLabel ml={1}>Search Sponsors</FormLabel>
           <InputGroup size="lg">
-            <InputLeftElement pointerEvents="none">
-              <FaSearch color={mutedColor} />
+            <InputLeftElement pointerEvents="none" color="text-muted">
+              <FaSearch />
             </InputLeftElement>
             <Input
               placeholder="Search by company, town or county..."
@@ -204,18 +190,14 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
                 goToPage(0);
                 setSearch(e.target.value);
               }}
-              bg={inputBg}
-              color={fgColor}
-              variant="outline"
               borderRadius="lg"
-              borderColor={borderColor}
             />
           </InputGroup>
         </FormControl>
       </Flex>
 
       {/* Table / Cards */}
-      <Box layerStyle="glass" borderRadius="xl" _before={{ display: "none" }}>
+      <Box layerStyle="panel" borderRadius="xl" overflow="hidden">
         {/* Pagination header */}
         <Flex
           justify="space-between"
@@ -225,35 +207,34 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
           px={6}
           py={4}
           borderBottomWidth="1px"
-          borderColor={cellBorder}
-          bg="transparent"
+          borderColor="border"
         >
           <HStack spacing={3}>
             <Tag
-              colorScheme="forest"
               size="md"
               borderRadius="full"
-              variant="subtle"
+              bg="accent-soft"
+              color="accent-strong"
+              fontSize="xs"
             >
-              {totalResults} Results
+              {totalResults} results
             </Tag>
             {!isEmpty && (
-              <Text fontSize="xs" color={mutedColor} whiteSpace="nowrap">
-                Showing {rangeStart}–{rangeEnd}
+              <Text textStyle="meta" whiteSpace="nowrap">
+                {rangeStart}–{rangeEnd}
               </Text>
             )}
           </HStack>
 
           <HStack spacing={{ base: 2, md: 4 }} flexWrap="wrap" justify="center">
             <HStack spacing={2}>
-              <Text fontSize="xs" color={mutedColor} whiteSpace="nowrap">
-                Rows
+              <Text textStyle="meta" whiteSpace="nowrap">
+                rows
               </Text>
               <Select
                 size="sm"
                 width="auto"
                 borderRadius="md"
-                borderColor={borderColor}
                 value={pageSize}
                 onChange={(e) => {
                   setPageSize(Number(e.target.value));
@@ -270,15 +251,15 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
             </HStack>
 
             <HStack spacing={2}>
-              <Text fontSize="sm" fontWeight="medium" color={mutedColor} whiteSpace="nowrap">
-                Page
+              <Text textStyle="meta" whiteSpace="nowrap">
+                page
               </Text>
               <Input
                 size="sm"
                 width="14"
                 textAlign="center"
                 borderRadius="md"
-                borderColor={borderColor}
+                fontFamily="mono"
                 value={pageInput}
                 onChange={(e) => setPageInput(e.target.value)}
                 onBlur={() => goToPage((Number(pageInput) || 1) - 1)}
@@ -287,7 +268,7 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
                 }}
                 aria-label="Go to page"
               />
-              <Text fontSize="sm" fontWeight="medium" color={mutedColor} whiteSpace="nowrap">
+              <Text textStyle="meta" whiteSpace="nowrap">
                 of {totalPages}
               </Text>
             </HStack>
@@ -330,7 +311,7 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
         </Flex>
 
         {isEmpty ? (
-          /* No-results empty state */
+          /* No-results empty state — the breath, held. */
           <Flex
             direction="column"
             align="center"
@@ -338,15 +319,16 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
             textAlign="center"
             py={20}
             px={6}
-            gap={4}
-            bg={panelBg}
+            gap={5}
           >
-            <Box as={FaSearchMinus} fontSize="3xl" color={mutedColor} />
+            <Box fontSize="48px" opacity={0.5}>
+              <Breath dots={2} />
+            </Box>
             <Box>
-              <Text fontWeight="700" fontSize="lg" color={fgColor}>
+              <Text fontWeight={600} fontSize="lg" color="text">
                 No sponsors found
               </Text>
-              <Text fontSize="sm" color={mutedColor} mt={1}>
+              <Text fontSize="sm" color="text-body" mt={1}>
                 {search
                   ? `Nothing matches "${search}". Try a different company, town or county.`
                   : "There are no records to display."}
@@ -354,8 +336,7 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
             </Box>
             {search && (
               <Button
-                colorScheme="forest"
-                variant="outline"
+                variant="quiet"
                 size="sm"
                 onClick={() => {
                   setSearch("");
@@ -368,47 +349,42 @@ const SponsorTable = ({ cols, values }: SponsorTableProps) => {
           </Flex>
         ) : isMobile ? (
           /* Card layout for mobile */
-          <Stack
-            spacing={0}
-            bg={panelBg}
-            divider={<Divider borderColor={cellBorder} />}
-          >
+          <Stack spacing={0} divider={<Divider borderColor="border" />}>
             {currentPageNodes.map((item, i) => (
               <Box
                 key={item.id}
                 px={5}
                 py={4}
-                bg={i % 2 === 0 ? "transparent" : rowEvenBg}
+                bg={i % 2 === 0 ? "transparent" : "row-alt"}
                 transition="background-color 0.15s ease"
-                _hover={{ bg: rowHoverBg }}
+                _hover={{ bg: "accent-soft" }}
               >
-                <Text fontWeight="700" fontSize="md" color={fgColor} mb={3}>
+                <Text fontWeight={600} fontSize="md" color="text" mb={3}>
                   {item.org}
                 </Text>
                 <SimpleGrid columns={2} spacingX={6} spacingY={3}>
-                  <Box>
-                    <Text {...labelStyle}>{cols[1]}</Text>
-                    <Text fontSize="sm" color={fgColor}>{item.town}</Text>
-                  </Box>
-                  <Box>
-                    <Text {...labelStyle}>{cols[2]}</Text>
-                    <Text fontSize="sm" color={fgColor}>{item.county}</Text>
-                  </Box>
-                  <Box>
-                    <Text {...labelStyle}>{cols[3]}</Text>
-                    <Text fontSize="sm" color={fgColor}>{item.type}</Text>
-                  </Box>
-                  <Box>
-                    <Text {...labelStyle}>{cols[4]}</Text>
-                    <Text fontSize="sm" color={fgColor}>{item.route}</Text>
-                  </Box>
+                  {[
+                    [cols[1], item.town],
+                    [cols[2], item.county],
+                    [cols[3], item.type],
+                    [cols[4], item.route],
+                  ].map(([label, value]) => (
+                    <Box key={label}>
+                      <Text textStyle="label" mb={0.5}>
+                        {label}
+                      </Text>
+                      <Text fontSize="sm" color="text-body">
+                        {value}
+                      </Text>
+                    </Box>
+                  ))}
                 </SimpleGrid>
               </Box>
             ))}
           </Stack>
         ) : (
           /* Table layout for desktop */
-          <Box overflowX="auto" bg={panelBg}>
+          <Box overflowX="auto">
             <Table
               data={tableData}
               theme={theme}

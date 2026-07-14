@@ -1,11 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Box,
   Button,
-  Divider,
   Flex,
-  HStack,
   Icon,
   Heading,
   Modal,
@@ -17,14 +14,13 @@ import {
   ModalOverlay,
   Text,
   VStack,
-  useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
-import { FaArrowLeft, FaDownload, FaExclamationTriangle } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaExclamationTriangle } from "react-icons/fa";
 import Papa from "papaparse";
-import FileUploader from "./FileUploader";
 import HeroIllustration from "./HeroIllustration";
 import SponsorTable from "./SponsorTable";
+import { Breath } from "./Breath";
 
 const heroVariants = {
   hidden: { opacity: 0 },
@@ -55,14 +51,6 @@ const MainContainer = () => {
     setCol([]);
     setVal([]);
   };
-
-  const subtleText = useColorModeValue("#829181", "#9da9a0");
-  const dividerColor = useColorModeValue("#c9c19f", "#56635f");
-  const gradient = useColorModeValue(
-    "linear(to-r, #8da101, #35a77c)",
-    "linear(to-r, #a7c080, #83c092)",
-  );
-  const modalText = useColorModeValue("#5c6a72", "#d3c6aa");
 
   const showError = (message: string) => {
     setErrorMessage(message);
@@ -97,9 +85,7 @@ const MainContainer = () => {
                 .filter((row) => row.some((cell) => cell.trim() !== "")),
             );
           } else {
-            showError(
-              "There is an issue with the file present, please upload your own copy",
-            );
+            showError("The sponsor list is empty. Please try again later.");
           }
         },
         error: (err: Error) => {
@@ -138,31 +124,22 @@ const MainContainer = () => {
               p={12}
               gap={10}
             >
-              <VStack spacing={6} textAlign="center">
+              <VStack spacing={8} textAlign="center">
                 <motion.div variants={itemVariants}>
-                  <Box layerStyle="glass" p={5} borderRadius="2xl">
-                    <HeroIllustration />
-                  </Box>
+                  <HeroIllustration />
                 </motion.div>
                 <VStack spacing={3}>
                   <motion.div variants={itemVariants}>
-                    <Heading
-                      size="xl"
-                      fontWeight="700"
-                      bgGradient={gradient}
-                      bgClip="text"
-                    >
-                      Sponsrr
-                    </Heading>
+                    <Heading size="xl">Sponsrr</Heading>
                   </motion.div>
                   <motion.div variants={itemVariants}>
                     <Text
-                      color={subtleText}
+                      color="text-body"
                       maxW="sm"
                       fontSize="md"
                       lineHeight="tall"
                     >
-                      Load the current sponsor list or upload your own CSV file
+                      Search the UK register of licensed visa sponsors
                     </Text>
                   </motion.div>
                 </VStack>
@@ -172,42 +149,25 @@ const MainContainer = () => {
                 variants={itemVariants}
                 style={{ width: "100%", maxWidth: "320px" }}
               >
-                <VStack spacing={4} w="full">
-                  <Button
-                    colorScheme="forest"
-                    variant="solid"
-                    size="lg"
-                    leftIcon={<Icon as={FaDownload} />}
-                    onClick={loadCurrentList}
-                    isLoading={isLoading}
-                    loadingText="Loading..."
-                    w="full"
-                    shadow="md"
-                    _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
-                    transition="all 0.2s"
-                  >
-                    Load Current List
-                  </Button>
-
-                  <HStack w="full" align="center">
-                    <Divider borderColor={dividerColor} />
-                    <Text
-                      fontSize="xs"
-                      color={subtleText}
-                      whiteSpace="nowrap"
-                      px={2}
-                    >
-                      or
-                    </Text>
-                    <Divider borderColor={dividerColor} />
-                  </HStack>
-
-                  <FileUploader
-                    setCol={setCol}
-                    setVal={setVal}
-                    onError={showError}
-                  />
-                </VStack>
+                <Button
+                  variant="breath"
+                  size="lg"
+                  rightIcon={<Icon as={FaArrowRight} />}
+                  onClick={loadCurrentList}
+                  isLoading={isLoading}
+                  loadingText="Loading"
+                  // The breath is the loading rhythm.
+                  spinner={
+                    <Breath animate color="text-on-accent" fontSize="xl" />
+                  }
+                  w="full"
+                  boxShadow="paper-sm"
+                  _hover={{ boxShadow: "paper", transform: "translateY(-1px)" }}
+                  _active={{ transform: "translateY(0)" }}
+                  transition="all 0.2s"
+                >
+                  Get Started
+                </Button>
               </motion.div>
             </Flex>
           </motion.div>
@@ -220,7 +180,6 @@ const MainContainer = () => {
           >
             <Button
               variant="ghost"
-              colorScheme="forest"
               size="sm"
               leftIcon={<Icon as={FaArrowLeft} />}
               onClick={resetList}
@@ -234,14 +193,10 @@ const MainContainer = () => {
       </AnimatePresence>
 
       <Modal isCentered isOpen={isErrorOpen} onClose={onErrorClose} size="sm">
-        <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
-        <ModalContent
-          layerStyle="glassStrong"
-          borderRadius="xl"
-          color={modalText}
-        >
+        <ModalOverlay backdropFilter="blur(4px)" />
+        <ModalContent>
           <ModalHeader display="flex" alignItems="center" gap={3} pt={8}>
-            <Icon as={FaExclamationTriangle} color="red.400" />
+            <Icon as={FaExclamationTriangle} color="accent" />
             Failed to load
           </ModalHeader>
           <ModalCloseButton />
@@ -250,7 +205,7 @@ const MainContainer = () => {
               {errorMessage}
             </Text>
           </ModalBody>
-          <ModalFooter borderBottomRadius="xl">
+          <ModalFooter>
             <Button variant="ghost" onClick={onErrorClose}>
               Dismiss
             </Button>

@@ -2,14 +2,13 @@
 
 Ever tried to find a company in the UK Home Office's register of licensed visa sponsors? It's a giant CSV with tens of thousands of rows. Ctrl+F is not a search engine. Sponsrr is.
 
-Load the latest register with one click (or drop in your own CSV export), then search and filter thousands of organisations as fast as you can type.
+Load the latest register with one click, then search and filter thousands of organisations as fast as you can type.
 
 ## What it does
 
 - ⚡ **Instant search** — filter by organisation name, town, or county in real time. No spinners, no waiting.
-- 📂 **Load or upload** — grab the bundled register, or bring your own CSV if you've got a fresher export.
 - 📄 **Paginated table** — 25 results per page, keyboard-friendly, no infinite-scroll doom.
-- 🌗 **Dark / light mode** — Everforest-themed palette with a satisfyingly smooth toggle.
+- 🎨 **Warm, muted palette** — paper and ink, with clay as the accent, and a light touch of glass on the navbar, hero and search panel.
 - ✨ **Animations** — framer-motion entrances and page transitions, because spreadsheets deserve nice things too.
 
 ## Under the hood
@@ -42,4 +41,4 @@ GitHub Actions runs the tests on every push and PR to `main`, so broken builds g
 
 ## About the data
 
-The bundled `current_list.csv` is the publicly available register of licensed sponsors published by the UK Home Office. Swap it out whenever you like, or upload a fresh export straight through the UI.
+The bundled `current_list.csv` is the publicly available register of licensed sponsors published by the UK Home Office. Swap the file out whenever you like to refresh the data.
