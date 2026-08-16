@@ -1,46 +1,43 @@
-import {
-  Box,
-  Container,
-  Text,
-  Flex,
-  IconButton,
-  Link,
-} from "@chakra-ui/react";
-import { FaGithub } from "react-icons/fa";
+import { Box, Flex, Link, Text } from "@chakra-ui/react";
 
+/**
+ * Closes the page with the same 2px rule that opens it. The provenance of the
+ * data is the point of the footer, so it leads; the colophon follows.
+ */
 const Footer = () => (
   <Box
     as="footer"
-    borderTopWidth="1px"
-    borderColor="border"
-    py={6}
+    borderTop="2px solid"
+    borderColor="divider"
+    px={{ base: 4, md: 8 }}
+    py={5}
   >
-    <Container maxW="container.xl">
-      <Flex
-        direction={{ base: "column", md: "row" }}
-        justify="center"
-        align="center"
-        gap={3}
-        position="relative"
-      >
-        <Text fontSize="sm" color="text-body">
-          Made with ❤️, hope this helps in your search
-        </Text>
+    <Flex
+      direction={{ base: "column", md: "row" }}
+      align={{ base: "flex-start", md: "baseline" }}
+      justify="space-between"
+      gap={3}
+    >
+      <Text fontSize="12px" color="ink-60" maxW="72ch" lineHeight={1.5}>
+        Not affiliated with the Home Office. A sponsor licence is not a job
+        offer.
+      </Text>
 
-        <IconButton
-          as={Link}
+      <Flex align="baseline" gap={5} flexShrink={0}>
+        <Text fontSize="12px" color="ink-60">
+          Made with care — hope this helps in your search
+        </Text>
+        <Link
           href="https://github.com/velociraptor98/sponsor_frontend"
           isExternal
-          aria-label="View source on GitHub"
-          icon={<FaGithub />}
-          variant="ghost"
-          size="sm"
-          fontSize="xl"
-          position={{ base: "static", md: "absolute" }}
-          right={{ md: 0 }}
-        />
+          textStyle="kicker"
+          color="accent"
+          _hover={{ color: "accent.700" }}
+        >
+          Source
+        </Link>
       </Flex>
-    </Container>
+    </Flex>
   </Box>
 );
 

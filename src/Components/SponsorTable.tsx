@@ -1,422 +1,442 @@
-import { useState, useMemo, useEffect } from "react";
-import {
-  Table,
-  Header,
-  HeaderRow,
-  Body,
-  Row,
-  HeaderCell,
-  Cell,
-} from "@table-library/react-table-library/table";
-import { useTheme } from "@table-library/react-table-library/theme";
+import { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
-  Divider,
   Flex,
+  Grid,
+  Heading,
   HStack,
-  IconButton,
-  Input,
-  Text,
-  InputGroup,
-  InputLeftElement,
   Select,
-  SimpleGrid,
-  Stack,
-  useBreakpointValue,
   Tag,
-  FormControl,
-  FormLabel,
+  Text,
+  useBreakpointValue,
 } from "@chakra-ui/react";
+import FilterRail, {
+  EMPTY_FILTERS,
+  type Filters,
+  hasFilters,
+} from "./FilterRail";
+import { CloseMark } from "./Icons";
 import {
-  DEFAULT_OPTIONS,
-  getTheme,
-} from "@table-library/react-table-library/chakra-ui";
-import {
-  FaAngleDoubleLeft,
-  FaAngleDoubleRight,
-  FaChevronLeft,
-  FaChevronRight,
-  FaSearch,
-} from "react-icons/fa";
-import { Breath } from "./Breath";
+  type Sponsor,
+  formatCount,
+  shortRoute,
+  tally,
+  tallyMany,
+} from "../register";
 
 const PAGE_SIZE_OPTIONS = [15, 25, 50, 100];
+const MOBILE_STEP = 15;
 
-// The table library takes plain CSS strings, so the brand tokens are referenced
-// through the custom properties Chakra emits for them. They track colour mode
-// on their own, which keeps the palette defined in exactly one place.
-const token = {
-  text: "var(--chakra-colors-text)",
-  textBody: "var(--chakra-colors-text-body)",
-  textMuted: "var(--chakra-colors-text-muted)",
-  border: "var(--chakra-colors-border)",
-  borderStrong: "var(--chakra-colors-border-strong)",
-  accentSoft: "var(--chakra-colors-accent-soft)",
-  rowAlt: "var(--chakra-colors-row-alt)",
-  surfaceRaised: "var(--chakra-colors-surface-raised)",
+const SORTS = {
+  "org-asc": { label: "A–Z", compare: (a: Sponsor, b: Sponsor) => a.org.localeCompare(b.org) },
+  "org-desc": { label: "Z–A", compare: (a: Sponsor, b: Sponsor) => b.org.localeCompare(a.org) },
+  town: {
+    label: "Town",
+    compare: (a: Sponsor, b: Sponsor) =>
+      a.town.localeCompare(b.town) || a.org.localeCompare(b.org),
+  },
 };
+type SortKey = keyof typeof SORTS;
+
+const COLUMNS = ["Organisation", "Town / city", "County", "Route", "Rating"];
 
 interface SponsorTableProps {
-  cols: string[];
-  values: string[][];
+  sponsors: Sponsor[];
+  /** The masthead search box's current value; debounced here. */
+  query: string;
+  isLoading: boolean;
 }
 
-const SponsorTable = ({ cols, values }: SponsorTableProps) => {
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+const matchesQuery = (sponsor: Sponsor, needle: string) =>
+  sponsor.org.toLowerCase().includes(needle) ||
+  sponsor.town.toLowerCase().includes(needle) ||
+  sponsor.county.toLowerCase().includes(needle);
+
+/** Everything except one facet, so that facet's counts stay live. */
+const narrow = (
+  sponsors: Sponsor[],
+  filters: Filters,
+  skip: "towns" | "routes" | "rating" | null,
+) =>
+  sponsors.filter(
+    (s) =>
+      (skip === "towns" || !filters.towns.length || filters.towns.includes(s.town)) &&
+      (skip === "routes" ||
+        !filters.routes.length ||
+        s.routes.some((route) => filters.routes.includes(route))) &&
+      (skip === "rating" || !filters.rating || s.rating === filters.rating),
+  );
+
+const toCsv = (rows: Sponsor[]) => {
+  const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
+  const lines = [COLUMNS.join(",")];
+  for (const row of rows) {
+    lines.push(
+      [row.org, row.town, row.county, row.routes.join(" · "), row.rating]
+        .map(escape)
+        .join(","),
+    );
+  }
+  return lines.join("\n");
+};
+
+const SponsorTable = ({ sponsors, query, isLoading }: SponsorTableProps) => {
+  const [debouncedQuery, setDebouncedQuery] = useState(query);
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  const [sort, setSort] = useState<SortKey>("org-asc");
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
-  const [pageInput, setPageInput] = useState("1");
+  const [mobileCount, setMobileCount] = useState(MOBILE_STEP);
+  const [railOpen, setRailOpen] = useState(false);
 
-  const isMobile = useBreakpointValue({ base: true, md: false });
-
-  const chakraTheme = getTheme(DEFAULT_OPTIONS, { isVirtualized: true });
-
-  const theme = useTheme([
-    chakraTheme,
-    {
-      HeaderRow: `
-        background-color: ${token.surfaceRaised};
-      `,
-      Row: `
-        background-color: transparent;
-        color: ${token.textBody};
-        transition: background-color 0.15s ease;
-        &:nth-of-type(even) {
-          background-color: ${token.rowAlt};
-        }
-        &:hover {
-          background-color: ${token.accentSoft} !important;
-        }
-      `,
-      // The system voice: labels, captions, metadata.
-      HeaderCell: `
-        border-bottom: 1px solid ${token.borderStrong} !important;
-        padding: 16px 12px !important;
-        font-family: 'Space Mono', ui-monospace, monospace;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: ${token.textMuted};
-      `,
-      Cell: `
-        padding: 14px 12px !important;
-        font-size: 14px;
-        border-bottom: 1px solid ${token.border} !important;
-        color: ${token.textBody};
-      `,
-    },
-  ]);
+  const isMobile = useBreakpointValue({ base: true, lg: false });
 
   // Filtering 140k rows on every keystroke is too slow, so the filter runs
   // against a debounced copy of the search text.
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 200);
+    const timer = setTimeout(() => setDebouncedQuery(query), 200);
     return () => clearTimeout(timer);
-  }, [search]);
+  }, [query]);
 
-  const allNodes = useMemo(
-    () =>
-      values.map((val, index) => ({
-        id: index,
-        org: val[0],
-        town: val[1],
-        county: val[2],
-        type: val[3],
-        route: val[4],
-      })),
-    [values],
+  // Any change to what is being asked for starts the results from the top.
+  useEffect(() => {
+    setPage(0);
+    setMobileCount(MOBILE_STEP);
+  }, [debouncedQuery, filters, sort, pageSize]);
+
+  const searched = useMemo(() => {
+    const needle = debouncedQuery.trim().toLowerCase();
+    if (!needle) return sponsors;
+    return sponsors.filter((s) => matchesQuery(s, needle));
+  }, [sponsors, debouncedQuery]);
+
+  const townFacets = useMemo(
+    () => tally(narrow(searched, filters, "towns"), (s) => s.town),
+    [searched, filters],
+  );
+  const routeFacets = useMemo(
+    () => tallyMany(narrow(searched, filters, "routes"), (s) => s.routes),
+    [searched, filters],
   );
 
-  const filteredNodes = useMemo(() => {
-    const searchTerm = debouncedSearch.trim().toLowerCase();
-    if (searchTerm === "") return allNodes;
-    return allNodes.filter(
-      (item) =>
-        (item.org && item.org.toLowerCase().includes(searchTerm)) ||
-        (item.town && item.town.toLowerCase().includes(searchTerm)) ||
-        (item.county && item.county.toLowerCase().includes(searchTerm)),
-    );
-  }, [allNodes, debouncedSearch]);
+  const results = useMemo(() => {
+    const rows = narrow(searched, filters, null);
+    return [...rows].sort(SORTS[sort].compare);
+  }, [searched, filters, sort]);
 
-  const totalResults = filteredNodes.length;
-  const totalPages = Math.max(1, Math.ceil(totalResults / pageSize));
-  // Clamp in case filtering shrank the result set below the current page.
+  const total = results.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.min(page, totalPages - 1);
+  const pageRows = useMemo(
+    () => results.slice(currentPage * pageSize, (currentPage + 1) * pageSize),
+    [results, currentPage, pageSize],
+  );
+  const mobileRows = useMemo(
+    () => results.slice(0, mobileCount),
+    [results, mobileCount],
+  );
 
-  const goToPage = (next: number) => {
-    const clamped = Math.max(0, Math.min(next, totalPages - 1));
-    setPage(clamped);
-    setPageInput(String(clamped + 1));
+  const rangeStart = total === 0 ? 0 : currentPage * pageSize + 1;
+  const rangeEnd = Math.min((currentPage + 1) * pageSize, total);
+
+  const where = filters.towns.length
+    ? ` in ${filters.towns.slice(0, 2).join(", ")}${
+        filters.towns.length > 2 ? ` +${filters.towns.length - 2}` : ""
+      }`
+    : debouncedQuery.trim()
+      ? ` matching “${debouncedQuery.trim()}”`
+      : "";
+
+  const subline = [
+    filters.routes.length ? filters.routes.join(" · ") : "All routes",
+    filters.rating ? `${filters.rating}-rated` : "A-rated and B-rated",
+  ].join(" · ");
+
+  const download = () => {
+    const blob = new Blob([toCsv(results)], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "sponsors.csv";
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
-  const currentPageNodes = useMemo(() => {
-    const start = currentPage * pageSize;
-    return filteredNodes.slice(start, start + pageSize);
-  }, [filteredNodes, currentPage, pageSize]);
-
-  const tableData = useMemo(
-    () => ({ nodes: currentPageNodes }),
-    [currentPageNodes],
-  );
-
-  const isEmpty = totalResults === 0;
-  const rangeStart = isEmpty ? 0 : currentPage * pageSize + 1;
-  const rangeEnd = Math.min((currentPage + 1) * pageSize, totalResults);
-
   return (
-    <Stack spacing={6} width="100%" maxW="100%" mx="auto">
-      {/* Filters */}
-      <Flex
-        layerStyle="glass"
-        direction={{ base: "column", md: "row" }}
-        gap={4}
-        align={{ base: "stretch", md: "flex-end" }}
-        p={6}
-        borderRadius="xl"
-      >
-        <FormControl flex={2}>
-          <FormLabel ml={1}>Search Sponsors</FormLabel>
-          <InputGroup size="lg">
-            <InputLeftElement pointerEvents="none" color="text-muted">
-              <FaSearch />
-            </InputLeftElement>
-            <Input
-              placeholder="Search by company, town or county..."
-              value={search}
-              onChange={(e) => {
-                goToPage(0);
-                setSearch(e.target.value);
-              }}
-              borderRadius="lg"
-            />
-          </InputGroup>
-        </FormControl>
-      </Flex>
+    <Grid templateColumns={{ base: "1fr", lg: "246px 1fr" }} flex="1" minH={0}>
+      {/* On narrow screens the rail folds away behind the toolbar below. */}
+      {(!isMobile || railOpen) && (
+        <FilterRail
+          towns={townFacets}
+          routes={routeFacets}
+          filters={filters}
+          onChange={setFilters}
+        />
+      )}
 
-      {/* Table / Cards */}
-      <Box layerStyle="panel" borderRadius="xl" overflow="hidden">
-        {/* Pagination header */}
+      <Box minW={0}>
+        {/* Toolbar — mobile only: the selection, and the way back to it. */}
+        {isMobile && (
         <Flex
-          justify="space-between"
           align="center"
-          direction={{ base: "column", md: "row" }}
-          gap={3}
-          px={6}
-          py={4}
-          borderBottomWidth="1px"
-          borderColor="border"
+          gap={2}
+          px={4}
+          py={3}
+          borderBottom="2px solid"
+          borderColor="divider"
+          overflowX="auto"
         >
-          <HStack spacing={3}>
+          <Button size="sm" onClick={() => setRailOpen((open) => !open)}>
+            {railOpen ? "Hide filters" : "Filters"}
+          </Button>
+          {filters.towns.map((town) => (
             <Tag
-              size="md"
-              borderRadius="full"
-              bg="accent-soft"
-              color="accent-strong"
-              fontSize="xs"
+              key={town}
+              as="button"
+              type="button"
+              variant="accent"
+              flexShrink={0}
+              gap="6px"
+              onClick={() =>
+                setFilters({
+                  ...filters,
+                  towns: filters.towns.filter((t) => t !== town),
+                })
+              }
             >
-              {totalResults} results
+              {town}
+              <CloseMark />
             </Tag>
-            {!isEmpty && (
-              <Text textStyle="meta" whiteSpace="nowrap">
-                {rangeStart}–{rangeEnd}
-              </Text>
-            )}
-          </HStack>
+          ))}
+          {filters.rating && (
+            <Tag variant="accent" flexShrink={0}>
+              {filters.rating} rating
+            </Tag>
+          )}
+        </Flex>
+        )}
 
-          <HStack spacing={{ base: 2, md: 4 }} flexWrap="wrap" justify="center">
+        {/* Results header */}
+        <Flex
+          align={{ base: "flex-start", md: "baseline" }}
+          direction={{ base: "column", md: "row" }}
+          justify="space-between"
+          gap={3}
+          px={{ base: 4, md: 6 }}
+          py={4}
+          borderBottom="2px solid"
+          borderColor="divider"
+        >
+          <Box>
+            <Heading as="h2" fontSize={{ base: "20px", md: "26px" }}>
+              {isLoading && total === 0
+                ? "Reading the register…"
+                : `${formatCount(total)} sponsor${total === 1 ? "" : "s"}${where}`}
+            </Heading>
+            <Text fontSize="12px" color="ink-60" mt={1}>
+              {subline}
+            </Text>
+          </Box>
+
+          <HStack spacing={3} flexShrink={0}>
             <HStack spacing={2}>
-              <Text textStyle="meta" whiteSpace="nowrap">
-                rows
-              </Text>
+              <Text textStyle="kicker">Sort</Text>
               <Select
                 size="sm"
-                width="auto"
-                borderRadius="md"
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value));
-                  goToPage(0);
-                }}
-                aria-label="Rows per page"
+                h="32px"
+                fontSize="12px"
+                w="auto"
+                value={sort}
+                onChange={(event) => setSort(event.target.value as SortKey)}
+                aria-label="Sort results"
               >
-                {PAGE_SIZE_OPTIONS.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
+                {Object.entries(SORTS).map(([key, option]) => (
+                  <option key={key} value={key}>
+                    {option.label}
                   </option>
                 ))}
               </Select>
             </HStack>
-
-            <HStack spacing={2}>
-              <Text textStyle="meta" whiteSpace="nowrap">
-                page
-              </Text>
-              <Input
-                size="sm"
-                width="14"
-                textAlign="center"
-                borderRadius="md"
-                fontFamily="mono"
-                value={pageInput}
-                onChange={(e) => setPageInput(e.target.value)}
-                onBlur={() => goToPage((Number(pageInput) || 1) - 1)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") goToPage((Number(pageInput) || 1) - 1);
-                }}
-                aria-label="Go to page"
-              />
-              <Text textStyle="meta" whiteSpace="nowrap">
-                of {totalPages}
-              </Text>
-            </HStack>
-
-            <HStack spacing={1}>
-              <IconButton
-                aria-label="first page"
-                icon={<FaAngleDoubleLeft />}
-                size="sm"
-                variant="ghost"
-                isDisabled={currentPage === 0}
-                onClick={() => goToPage(0)}
-              />
-              <IconButton
-                aria-label="previous page"
-                icon={<FaChevronLeft />}
-                size="sm"
-                variant="ghost"
-                isDisabled={currentPage === 0}
-                onClick={() => goToPage(currentPage - 1)}
-              />
-              <IconButton
-                aria-label="next page"
-                icon={<FaChevronRight />}
-                size="sm"
-                variant="ghost"
-                isDisabled={currentPage + 1 >= totalPages}
-                onClick={() => goToPage(currentPage + 1)}
-              />
-              <IconButton
-                aria-label="last page"
-                icon={<FaAngleDoubleRight />}
-                size="sm"
-                variant="ghost"
-                isDisabled={currentPage + 1 >= totalPages}
-                onClick={() => goToPage(totalPages - 1)}
-              />
-            </HStack>
+            <Button size="sm" onClick={download} isDisabled={total === 0}>
+              Download CSV
+            </Button>
           </HStack>
         </Flex>
 
-        {isEmpty ? (
-          /* No-results empty state — the breath, held. */
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            textAlign="center"
-            py={20}
-            px={6}
-            gap={5}
-          >
-            <Box fontSize="48px" opacity={0.5}>
-              <Breath dots={2} />
-            </Box>
-            <Box>
-              <Text fontWeight={600} fontSize="lg" color="text">
-                No sponsors found
-              </Text>
-              <Text fontSize="sm" color="text-body" mt={1}>
-                {search
-                  ? `Nothing matches "${search}". Try a different company, town or county.`
-                  : "There are no records to display."}
-              </Text>
-            </Box>
-            {search && (
-              <Button
-                variant="quiet"
-                size="sm"
-                onClick={() => {
-                  setSearch("");
-                  goToPage(0);
-                }}
-              >
-                Clear search
+        {total === 0 ? (
+          <Flex direction="column" align="center" gap={4} px={6} py={20}>
+            <Text textStyle="kicker">No matches</Text>
+            <Heading as="p" fontSize="20px" textAlign="center">
+              {isLoading ? "Still reading the register" : "Nothing here yet"}
+            </Heading>
+            <Text fontSize="14px" color="ink-60" textAlign="center" maxW="44ch">
+              {isLoading
+                ? "The full register is still loading — results will appear as soon as it lands."
+                : "No sponsor matches this search and these filters. Try a wider town, or clear the filters."}
+            </Text>
+            {hasFilters(filters) && (
+              <Button variant="ghost" onClick={() => setFilters(EMPTY_FILTERS)}>
+                Clear all filters
               </Button>
             )}
           </Flex>
         ) : isMobile ? (
-          /* Card layout for mobile */
-          <Stack spacing={0} divider={<Divider borderColor="border" />}>
-            {currentPageNodes.map((item, i) => (
+          /* 1h — the register as a list, one line of metadata per row. */
+          <Box>
+            {mobileRows.map((sponsor) => (
               <Box
-                key={item.id}
-                px={5}
-                py={4}
-                bg={i % 2 === 0 ? "transparent" : "row-alt"}
-                transition="background-color 0.15s ease"
-                _hover={{ bg: "accent-soft" }}
+                key={sponsor.id}
+                px={4}
+                py={3}
+                borderTop="1px solid"
+                borderColor="rule"
               >
-                <Text fontWeight={600} fontSize="md" color="text" mb={3}>
-                  {item.org}
+                <Text fontWeight={600} fontSize="15px">
+                  {sponsor.org}
                 </Text>
-                <SimpleGrid columns={2} spacingX={6} spacingY={3}>
+                <Text fontSize="12px" color="ink-60" mt="2px">
                   {[
-                    [cols[1], item.town],
-                    [cols[2], item.county],
-                    [cols[3], item.type],
-                    [cols[4], item.route],
-                  ].map(([label, value]) => (
-                    <Box key={label}>
-                      <Text textStyle="label" mb={0.5}>
-                        {label}
-                      </Text>
-                      <Text fontSize="sm" color="text-body">
-                        {value}
-                      </Text>
-                    </Box>
-                  ))}
-                </SimpleGrid>
+                    sponsor.town,
+                    sponsor.routes.length > 1
+                      ? `${sponsor.routes.length} routes`
+                      : sponsor.routes[0],
+                    sponsor.rating && `${sponsor.rating} rating`,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </Text>
               </Box>
             ))}
-          </Stack>
+            {mobileCount < total && (
+              <Box p={4} borderTop="2px solid" borderColor="divider">
+                <Button
+                  w="full"
+                  h="48px"
+                  justifyContent="flex-start"
+                  onClick={() => setMobileCount((n) => n + MOBILE_STEP)}
+                >
+                  Load {Math.min(MOBILE_STEP, total - mobileCount)} more
+                </Button>
+              </Box>
+            )}
+          </Box>
         ) : (
-          /* Table layout for desktop */
+          /* 1c — the dense table. */
           <Box overflowX="auto">
-            <Table
-              data={tableData}
-              theme={theme}
-              layout={{ isDiv: true, fixedHeader: true }}
+            <Box as="table" w="100%" sx={{ borderCollapse: "collapse" }} fontSize="13px">
+              <Box as="thead">
+                <Box as="tr">
+                  {COLUMNS.map((column) => (
+                    <Box
+                      as="th"
+                      key={column}
+                      textAlign="left"
+                      textStyle="kicker"
+                      fontSize="11px"
+                      letterSpacing="0.08em"
+                      color="ink-60"
+                      px={2}
+                      py={2}
+                      borderBottom="2px solid"
+                      borderColor="divider"
+                    >
+                      {column}
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+              <Box as="tbody">
+                {pageRows.map((sponsor) => (
+                  <Box as="tr" key={sponsor.id} _hover={{ bg: "ink-04" }}>
+                    <Box as="td" px={2} py={2} borderBottom="1px solid" borderColor="rule" fontWeight={600}>
+                      {sponsor.org}
+                    </Box>
+                    <Box as="td" px={2} py={2} borderBottom="1px solid" borderColor="rule">
+                      {sponsor.town}
+                    </Box>
+                    <Box as="td" px={2} py={2} borderBottom="1px solid" borderColor="rule">
+                      {sponsor.county}
+                    </Box>
+                    <Box as="td" px={2} py={2} borderBottom="1px solid" borderColor="rule">
+                      {sponsor.routes.map(shortRoute).join(" · ")}
+                    </Box>
+                    <Box as="td" px={2} py={2} borderBottom="1px solid" borderColor="rule">
+                      {sponsor.rating ? (
+                        <Tag variant={sponsor.rating === "A" ? "neutral" : "accent"}>
+                          {sponsor.rating}
+                        </Tag>
+                      ) : (
+                        <Text as="span" color="ink-45">
+                          —
+                        </Text>
+                      )}
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+
+            {/* Pagination */}
+            <Flex
+              align="center"
+              justify="space-between"
+              gap={4}
+              px={6}
+              py={4}
+              borderTop="2px solid"
+              borderColor="divider"
+              flexWrap="wrap"
             >
-              {(tableList: any) => (
-                <>
-                  <Header>
-                    <HeaderRow>
-                      {cols.map((value) => (
-                        <HeaderCell key={value}>{value}</HeaderCell>
-                      ))}
-                    </HeaderRow>
-                  </Header>
-                  <Body>
-                    {tableList.map((item: any) => (
-                      <Row key={item.id} item={item}>
-                        <Cell>{item.org}</Cell>
-                        <Cell>{item.town}</Cell>
-                        <Cell>{item.county}</Cell>
-                        <Cell>{item.type}</Cell>
-                        <Cell>{item.route}</Cell>
-                      </Row>
+              <HStack spacing={4}>
+                <Text fontFamily="mono" fontSize="11px" color="ink-55">
+                  {formatCount(rangeStart)}–{formatCount(rangeEnd)} OF{" "}
+                  {formatCount(total)}
+                </Text>
+                <HStack spacing={2}>
+                  <Text textStyle="kicker">Rows</Text>
+                  <Select
+                    size="sm"
+                    h="28px"
+                    fontSize="12px"
+                    w="auto"
+                    value={pageSize}
+                    onChange={(event) => setPageSize(Number(event.target.value))}
+                    aria-label="Rows per page"
+                  >
+                    {PAGE_SIZE_OPTIONS.map((size) => (
+                      <option key={size} value={size}>
+                        {size}
+                      </option>
                     ))}
-                  </Body>
-                </>
-              )}
-            </Table>
+                  </Select>
+                </HStack>
+              </HStack>
+
+              <HStack spacing={1}>
+                <Button
+                  size="sm"
+                  isDisabled={currentPage === 0}
+                  onClick={() => setPage(currentPage - 1)}
+                >
+                  Previous
+                </Button>
+                <Text fontFamily="mono" fontSize="12px" px={2} color="ink-55">
+                  {formatCount(currentPage + 1)} / {formatCount(totalPages)}
+                </Text>
+                <Button
+                  size="sm"
+                  isDisabled={currentPage + 1 >= totalPages}
+                  onClick={() => setPage(currentPage + 1)}
+                >
+                  Next
+                </Button>
+              </HStack>
+            </Flex>
           </Box>
         )}
       </Box>
-    </Stack>
+    </Grid>
   );
 };
 

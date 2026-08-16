@@ -2,28 +2,27 @@
 
 Ever tried to find a company in the UK Home Office's register of licensed visa sponsors? It's a giant CSV with tens of thousands of rows. Ctrl+F is not a search engine. Sponsrr is.
 
-Load the latest register with one click, then search and filter thousands of organisations as fast as you can type.
+The register loads as the page opens, so the entry screen leads with what is actually in it. Search it, or narrow it down by town, visa route and licence rating.
 
 ## What it does
 
 - ⚡ **Instant search** — filter by organisation name, town, or county in real time. No spinners, no waiting.
-- 📄 **Paginated table** — 25 results per page, keyboard-friendly, no infinite-scroll doom.
-- 🎨 **Warm, muted palette** — paper and ink, with clay as the accent, and a light touch of glass on the navbar, hero and search panel.
-- ✨ **Animations** — framer-motion entrances and page transitions, because spreadsheets deserve nice things too.
+- 🧭 **Live facets** — town, route and rating counts are computed against everything *except* the facet they belong to, so a number tells you what picking it would actually give you.
+- 🏢 **One row per organisation** — the register lists an employer once per route; Sponsrr groups those back together and shows the routes in one cell.
+- 📄 **Paginated table** on the desktop, a compact list with *load more* on mobile.
+- 🎨 **Modernist** — warm grey ground, near-black ink, one vermilion accent, Archivo throughout, and no rounded corners anywhere. Structure is drawn with rules, not shadows.
 
 ## Under the hood
 
 - [React 18](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
 - [Chakra UI](https://chakra-ui.com/) for components and theming
-- [Framer Motion](https://www.framer.com/motion/) for the fancy bits
-- [react-table-library](https://react-table-library.com/) for the virtualised, paginated table
-- [PapaParse](https://www.papaparse.com/) for chewing through CSVs
+- [PapaParse](https://www.papaparse.com/) for chewing through CSVs, in a worker so the UI stays live
 
 ## Run it
 
 ```bash
 npm install
-npm start        # → http://localhost:3000
+npm start        # → http://localhost:5173
 ```
 
 That's it. Really.
@@ -33,7 +32,8 @@ That's it. Really.
 | Command | What it does |
 |---|---|
 | `npm test` | Run the test suite |
-| `npm run build` | Production build into `build/` |
+| `npm run build` | Production build into `dist/` |
+| `npm run typecheck` | Type-check without emitting |
 
 ## CI
 

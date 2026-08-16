@@ -1,6 +1,5 @@
-import { ChakraProvider, Box, Container, Flex } from "@chakra-ui/react"
+import { ChakraProvider, Flex } from "@chakra-ui/react"
 import customTheme from "./theme"
-import Navbar from "./Components/Navbar";
 import MainContainer from "./Components/MainContainer";
 import Footer from "./Components/Footer";
 
@@ -17,15 +16,13 @@ const lightOnly = {
   set: () => undefined,
 }
 
+// Full-bleed: the system draws its structure with rules that run edge to edge,
+// so there is no centred container and no page gutter — the screens set their
+// own padding inside the frame.
 export const App = () => (
   <ChakraProvider theme={customTheme} colorModeManager={lightOnly}>
     <Flex direction="column" minH="100vh">
-      <Navbar />
-      <Box flex="1">
-        <Container maxW="container.xl" py={8} px={6}>
-          <MainContainer />
-        </Container>
-      </Box>
+      <MainContainer />
       <Footer />
     </Flex>
   </ChakraProvider>

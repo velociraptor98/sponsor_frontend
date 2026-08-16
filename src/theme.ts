@@ -8,106 +8,77 @@ const config: ThemeConfig = {
 }
 
 /**
- * Design language v1.
+ * Modernist.
  *
- * Six base colours are given by the design document; everything below is
- * derived from them by holding chroma and hue and moving lightness, so the
- * ramps stay inside the warm, low-saturation family it asks for.
+ * A flat, high-contrast system: warm-grey ground, near-black ink, one loud
+ * vermilion accent, and no rounding anywhere. Structure is carried by rules —
+ * 2px for major divisions, 1px hairlines inside lists and tables — rather than
+ * by shadow or blur. Archivo does all the talking: 800 for headings and
+ * buttons, 400/500/600 for body, and a monospaced voice for labels, counts and
+ * anything the eye should read as data.
  *
- *   paper    oklch(0.962 0.012 86)   primary surface      -> ink.50
- *   ink      oklch(0.305 0.020 64)   headings & wordmark  -> ink.700
- *   ink soft oklch(0.470 0.022 64)   body & captions      -> ink.500
- *   clay     oklch(0.605 0.078 52)   the accent           -> clay.500
- *   sage     oklch(0.605 0.058 148)  secondary accent     -> sage.500
- *   espresso oklch(0.262 0.022 60)   deepest ground       -> ink.800
+ *   bg        #f3f2f2   the ground
+ *   surface   #eae9e9   fields and inset panels
+ *   text      #201e1d   ink
+ *   accent    #ec3013   vermilion — actions and the current selection
+ *   accent-2  #e15b47   secondary accent
  */
 
-// Warm neutral ramp. The four named neutrals sit at fixed stops (see above) so
-// they can be referenced either by brand name or by scale position.
-const ink = {
-  50:  "oklch(0.962 0.012 86)", // paper
-  100: "oklch(0.930 0.014 78)",
-  200: "oklch(0.880 0.016 72)",
-  300: "oklch(0.800 0.018 68)",
-  400: "oklch(0.640 0.020 64)",
-  500: "oklch(0.470 0.022 64)", // ink soft
-  600: "oklch(0.395 0.021 64)",
-  700: "oklch(0.305 0.020 64)", // ink
-  800: "oklch(0.262 0.022 60)", // espresso
-  900: "oklch(0.200 0.018 60)",
+const INK = "#201e1d"
+
+// Tonal ramps, generated in OKLCH on one shared lightness scale, so the same
+// step of any role matches the others in visual value.
+const neutral = {
+  100: "#f8f4f4",
+  200: "#eae7e7",
+  300: "#d7d3d3",
+  400: "#bab6b6",
+  500: "#9b9797",
+  600: "#7d7979",
+  700: "#605d5d",
+  800: "#444141",
+  900: "#2d2b2b",
 }
 
-// Clay is reserved for the accent, so it always means "this is alive".
-const clay = {
-  50:  "oklch(0.965 0.012 52)",
-  100: "oklch(0.930 0.022 52)",
-  200: "oklch(0.870 0.038 52)",
-  300: "oklch(0.795 0.054 52)",
-  400: "oklch(0.700 0.068 52)",
-  500: "oklch(0.605 0.078 52)", // clay
-  600: "oklch(0.530 0.072 52)",
-  700: "oklch(0.450 0.060 52)",
-  800: "oklch(0.370 0.046 52)",
-  900: "oklch(0.300 0.034 52)",
+const accent = {
+  100: "#fff2ef",
+  200: "#ffe0d9",
+  300: "#ffc4b8",
+  400: "#ff9783",
+  500: "#ff563c",
+  600: "#dd2b0f",
+  700: "#ae1800",
+  800: "#7c1405",
+  900: "#4d170e",
 }
 
-const sage = {
-  50:  "oklch(0.965 0.010 148)",
-  100: "oklch(0.930 0.018 148)",
-  200: "oklch(0.870 0.030 148)",
-  300: "oklch(0.795 0.042 148)",
-  400: "oklch(0.700 0.052 148)",
-  500: "oklch(0.605 0.058 148)", // sage
-  600: "oklch(0.530 0.053 148)",
-  700: "oklch(0.450 0.044 148)",
-  800: "oklch(0.370 0.034 148)",
-  900: "oklch(0.300 0.026 148)",
+const accent2 = {
+  100: "#fff2ef",
+  200: "#ffe0da",
+  300: "#ffc4b9",
+  400: "#ff9784",
+  500: "#ef6853",
+  600: "#c94b39",
+  700: "#9e3526",
+  800: "#71261b",
+  900: "#471d16",
 }
 
-// Two very soft washes of clay and sage, fixed to the viewport. They exist so
-// the glass surfaces have something to refract — flat paper would blur into
-// nothing. Kept far below the accent's strength so the page stays quiet.
-const ambientWash = `
-  radial-gradient(ellipse 80% 55% at 10% -6%, oklch(0.605 0.078 52 / 0.18), transparent 62%),
-  radial-gradient(ellipse 75% 55% at 92% 4%, oklch(0.605 0.058 148 / 0.15), transparent 60%),
-  radial-gradient(ellipse 95% 65% at 55% 108%, oklch(0.605 0.078 52 / 0.12), transparent 70%)
-`
+/** Ink at a given alpha. Every tint in the system is the ink, thinned. */
+const ink = (alpha: number) => `rgba(32, 30, 29, ${alpha})`
 
-// Paper held up to the light: translucent, gently blurred, with a bright rim
-// and a soft highlight along the top edge. Restrained — a hint of the material,
-// not the frosted slab.
-const glassBase = {
-  position: "relative" as const,
-  borderWidth: "1px",
-  borderStyle: "solid",
-  borderColor: "glass-border",
-  backdropFilter: "blur(16px) saturate(140%)",
-  boxShadow: "glass",
-  // The sheen sits behind content, so text stays crisp on top of it.
-  "& > *": { position: "relative", zIndex: 1 },
-  _before: {
-    content: '""',
-    position: "absolute",
-    insetInline: 0,
-    top: 0,
-    // Kept short: a long near-white ramp bands visibly across a tall panel.
-    height: "88px",
-    bgGradient: "linear(to-b, glass-sheen, transparent)",
-    pointerEvents: "none",
-    zIndex: 0,
-  },
-}
-
-// Shared by Input and Select: paper field, hairline edge, clay focus ring.
+// Fields sit on the surface behind a hairline; the search bars that lead a
+// screen get the full 2px ink edge instead. Both are square.
 const fieldStyle = {
-  bg: "surface-raised",
-  borderColor: "border",
+  bg: "surface",
   color: "text",
-  _hover: { borderColor: "border-strong" },
-  _focusVisible: {
-    borderColor: "accent",
-    boxShadow: "0 0 0 1px var(--chakra-colors-accent)",
-  },
+  borderRadius: 0,
+  borderWidth: "1px",
+  borderColor: "divider",
+  caretColor: "var(--chakra-colors-accent)",
+  _hover: { borderColor: "ink-45" },
+  _focusVisible: { borderColor: "accent", boxShadow: "none" },
+  _placeholder: { color: "ink-45" },
 }
 
 const customTheme = extendTheme({
@@ -115,192 +86,243 @@ const customTheme = extendTheme({
   styles: {
     global: {
       body: {
-        bg: "surface",
-        color: "text-body",
-        backgroundImage: ambientWash,
-        backgroundAttachment: "fixed",
+        bg: "bg",
+        color: "text",
+        fontSize: "15px",
+        lineHeight: 1.55,
+        fontWeight: 400,
       },
-      "*::selection": {
-        bg: "clay.100",
-        color: "ink.800",
+      "*::selection": { bg: "accent-200" },
+      // The system's focus ring: the accent, offset, never a glow.
+      "*:focus-visible": {
+        outline: "2px solid var(--chakra-colors-accent)",
+        outlineOffset: "2px",
+        boxShadow: "none !important",
       },
     },
   },
   fonts: {
-    // Two voices: Quicksand is the brand voice, Space Mono the system voice.
-    heading: `'Quicksand', -apple-system, BlinkMacSystemFont, sans-serif`,
-    body:    `'Quicksand', -apple-system, BlinkMacSystemFont, sans-serif`,
-    mono:    `'Space Mono', ui-monospace, SFMono-Regular, monospace`,
+    heading: `'Archivo', system-ui, -apple-system, sans-serif`,
+    body: `'Archivo', system-ui, -apple-system, sans-serif`,
+    mono: `ui-monospace, Menlo, Monaco, 'Courier New', monospace`,
   },
-  colors: { ink, clay, sage },
+  // Nothing in the system is rounded. `full` is kept only so Chakra internals
+  // that assume a pill (the Spinner's track) still render as circles.
+  radii: {
+    none: "0",
+    sm: "0",
+    base: "0",
+    md: "0",
+    lg: "0",
+    xl: "0",
+    "2xl": "0",
+    "3xl": "0",
+    full: "9999px",
+  },
+  colors: { neutral, accent, "accent-2": accent2 },
   semanticTokens: {
     // Single-mode, but kept as semantic tokens so they compile to the
     // `--chakra-colors-*` custom properties the table library reads.
     colors: {
-      surface: "ink.50",
-      "surface-raised": "oklch(0.985 0.008 86)",
-      "surface-sunken": "oklch(0.940 0.014 84)",
+      bg: "#f3f2f2",
+      surface: "#eae9e9",
+      text: INK,
 
-      text: "ink.700",
-      "text-body": "ink.500",
-      "text-muted": "ink.400",
+      // Ink, thinned. `divider` is the system's rule colour; `rule` is the
+      // hairline used between rows inside a block.
+      divider: ink(0.4),
+      rule: ink(0.14),
+      "ink-70": ink(0.7),
+      "ink-60": ink(0.6),
+      "ink-55": ink(0.55),
+      "ink-50": ink(0.5),
+      "ink-45": ink(0.45),
+      "ink-12": ink(0.12),
+      "ink-07": ink(0.07),
+      "ink-04": ink(0.04),
 
-      // Hairlines, never heavy rules.
-      border: "oklch(0.895 0.014 76)",
-      "border-strong": "oklch(0.830 0.018 70)",
+      accent: "#ec3013",
+      "accent-hover": "accent.600",
+      "accent-active": "accent.700",
+      "accent-2": "#e15b47",
+      "text-on-accent": "#f3f2f2",
 
-      accent: "clay.500",
-      "accent-hover": "clay.600",
-      "accent-soft": "oklch(0.605 0.078 52 / 0.10)",
-      // Clay darkened enough to carry small text on the ground.
-      "accent-strong": "clay.700",
-      // Reversed out of clay.
-      "text-on-accent": "ink.50",
-
-      "accent-secondary": "sage.500",
-
-      // Zebra striping: a breath of ink on paper, nothing more.
-      "row-alt": "oklch(0.305 0.020 64 / 0.028)",
-
-      // Glass: a translucent sheet of paper, its rim catching the light.
-      "glass-bg": "oklch(0.985 0.008 86 / 0.55)",
-      "glass-bg-strong": "oklch(0.985 0.008 86 / 0.78)",
-      "glass-border": "oklch(1 0 0 / 0.65)",
-      "glass-sheen": "oklch(1 0 0 / 0.45)",
-
-      "chakra-body-bg": "ink.50",
-      "chakra-body-text": "ink.500",
-      "chakra-border-color": "oklch(0.895 0.014 76)",
-      "chakra-placeholder-color": "ink.400",
+      "chakra-body-bg": "#f3f2f2",
+      "chakra-body-text": INK,
+      "chakra-border-color": ink(0.4),
+      "chakra-placeholder-color": ink(0.45),
     },
     shadows: {
-      // Soft and low — paper resting on paper.
-      "paper-sm": "0 1px 2px oklch(0.305 0.020 64 / 0.05)",
-      paper:
-        "0 2px 4px oklch(0.305 0.020 64 / 0.04), 0 8px 20px -12px oklch(0.305 0.020 64 / 0.14)",
-      "paper-lg":
-        "0 4px 8px oklch(0.305 0.020 64 / 0.05), 0 16px 36px -16px oklch(0.305 0.020 64 / 0.20)",
-      // The same soft drop, plus the inset highlight that sells the material.
-      glass:
-        "inset 0 1px 1px oklch(1 0 0 / 0.7), 0 2px 4px oklch(0.305 0.020 64 / 0.04), 0 10px 26px -14px oklch(0.305 0.020 64 / 0.20)",
-    },
-  },
-  layerStyles: {
-    // A sheet of paper: flat fill, hairline edge, soft shadow.
-    panel: {
-      bg: "surface-raised",
-      borderWidth: "1px",
-      borderStyle: "solid",
-      borderColor: "border",
-      boxShadow: "paper",
-    },
-    // The same sheet, translucent and lit.
-    glass: { ...glassBase, bg: "glass-bg" },
-    // For surfaces that sit over content and need to stay legible.
-    glassStrong: {
-      ...glassBase,
-      bg: "glass-bg-strong",
-      backdropFilter: "blur(22px) saturate(150%)",
+      "elev-sm": "0 1px 2px rgba(45, 43, 43, 0.14)",
+      "elev-md": "0 3px 10px rgba(45, 43, 43, 0.16)",
+      "elev-lg": "0 12px 32px rgba(45, 43, 43, 0.22)",
     },
   },
   textStyles: {
-    // The system voice: labels, captions, metadata.
-    meta: {
+    // The system voice: section labels, kickers, column heads.
+    kicker: {
       fontFamily: "mono",
-      fontSize: "xs",
-      fontWeight: 400,
-      letterSpacing: "0.12em",
-      color: "text-muted",
-    },
-    label: {
-      fontFamily: "mono",
-      fontSize: "xs",
-      fontWeight: 700,
-      letterSpacing: "0.12em",
+      fontSize: "10px",
+      fontWeight: 600,
+      letterSpacing: "0.14em",
       textTransform: "uppercase",
-      color: "text-muted",
+      color: "ink-50",
+    },
+    // Data read as data: counts, ranges, dates, page numbers.
+    data: {
+      fontFamily: "mono",
+      fontSize: "12px",
+      color: "ink-55",
+    },
+    // The wordmark, at whatever size it is used.
+    wordmark: {
+      fontFamily: "heading",
+      fontWeight: 800,
+      letterSpacing: "-0.02em",
+      lineHeight: 1,
     },
   },
   components: {
     Heading: {
       baseStyle: {
-        fontWeight: 600,
+        fontWeight: 800,
         color: "text",
-        letterSpacing: "-0.005em",
+        lineHeight: 1.12,
+        letterSpacing: "-0.015em",
       },
     },
     Button: {
+      // Buttons are set in the heading face at heading weight, matching the
+      // 14px inputs they stand beside in search rows.
       baseStyle: {
-        fontWeight: 600,
-        borderRadius: "lg",
+        fontFamily: "heading",
+        fontWeight: 800,
+        borderRadius: 0,
+        lineHeight: 1.2,
+        _disabled: { opacity: 0.45 },
+      },
+      sizes: {
+        sm: { fontSize: "12px", h: "32px", px: 3 },
+        md: { fontSize: "14px", h: "36px", px: "14px" },
+        lg: { fontSize: "15px", h: "56px", px: 6 },
       },
       variants: {
-        // The one loud-ish element in the system, and it is clay.
-        breath: {
+        primary: {
           bg: "accent",
           color: "text-on-accent",
-          _hover: {
-            bg: "accent-hover",
-            _disabled: { bg: "accent" },
-          },
-          _active: { bg: "accent-hover" },
+          _hover: { bg: "accent-hover", _disabled: { bg: "accent" } },
+          _active: { bg: "accent-active" },
         },
-        quiet: {
+        secondary: {
           bg: "transparent",
           color: "text",
           borderWidth: "1px",
-          borderColor: "border-strong",
-          _hover: { bg: "accent-soft", borderColor: "accent" },
-          _active: { bg: "accent-soft" },
+          borderColor: "divider",
+          _hover: { bg: "ink-07" },
+          _active: { bg: "ink-12" },
         },
         ghost: {
-          color: "text-body",
-          _hover: { bg: "accent-soft", color: "text" },
-          _active: { bg: "accent-soft" },
+          color: "accent",
+          px: 1,
+          _hover: { bg: "accent.100" },
+          _active: { bg: "accent.200" },
         },
       },
-      defaultProps: { variant: "quiet" },
+      defaultProps: { variant: "secondary", size: "md" },
     },
-    // Overriding the `outline` variant replaces Chakra's built-in one, which is
-    // what would normally apply `focusBorderColor` — so the focus ring has to be
-    // declared here explicitly, or it falls back to black.
     Input: {
-      variants: { outline: { field: fieldStyle } },
+      sizes: {
+        md: { field: { h: "36px", fontSize: "14px", px: "10px" } },
+        lg: { field: { h: "48px", fontSize: "15px", px: 4 } },
+      },
+      variants: {
+        outline: { field: fieldStyle },
+        // Leads a screen: the full 2px ink edge, on the ground rather than
+        // the surface, so the rule reads as the frame around the whole row.
+        lead: {
+          field: {
+            ...fieldStyle,
+            bg: "bg",
+            borderWidth: "2px",
+            borderColor: "text",
+            _hover: { borderColor: "text" },
+            _focusVisible: { borderColor: "accent" },
+          },
+        },
+        // Sits inside a 2px frame drawn by its container, so it draws none.
+        bare: {
+          field: {
+            ...fieldStyle,
+            bg: "bg",
+            borderWidth: 0,
+            _hover: { borderColor: "transparent" },
+            _focusVisible: { borderColor: "transparent" },
+          },
+        },
+      },
+      defaultProps: { variant: "outline" },
     },
     Select: {
       variants: { outline: { field: fieldStyle } },
+      defaultProps: { variant: "outline" },
     },
     FormLabel: {
       baseStyle: {
         fontFamily: "mono",
-        fontSize: "xs",
-        fontWeight: 700,
-        letterSpacing: "0.12em",
+        fontSize: "10px",
+        fontWeight: 600,
+        letterSpacing: "0.14em",
         textTransform: "uppercase",
-        color: "text-muted",
-      },
-    },
-    Modal: {
-      baseStyle: {
-        dialog: {
-          ...glassBase,
-          bg: "glass-bg-strong",
-          backdropFilter: "blur(22px) saturate(150%)",
-          borderRadius: "xl",
-          color: "text-body",
-          overflow: "hidden",
-        },
-        header: { fontWeight: 600, color: "text" },
-        overlay: { bg: "oklch(0.262 0.022 60 / 0.30)" },
+        color: "ink-50",
+        mb: 2,
       },
     },
     Tag: {
       baseStyle: {
         container: {
-          fontFamily: "mono",
-          fontWeight: 700,
-          letterSpacing: "0.12em",
+          borderRadius: 0,
+          fontSize: "11px",
+          fontWeight: 500,
+          letterSpacing: "0.02em",
+          px: "10px",
+          py: "3px",
+          minH: "auto",
         },
+      },
+      variants: {
+        accent: { container: { bg: "accent.100", color: "accent.800" } },
+        "accent-2": {
+          container: { bg: "accent-2.100", color: "accent-2.800" },
+        },
+        neutral: { container: { bg: "neutral.100", color: "neutral.800" } },
+        outline: {
+          container: {
+            bg: "transparent",
+            color: "accent",
+            border: "1px solid",
+            borderColor: "accent",
+            boxShadow: "none",
+          },
+        },
+      },
+      defaultProps: { variant: "neutral" },
+    },
+    Modal: {
+      baseStyle: {
+        dialog: {
+          bg: "surface",
+          color: "text",
+          borderRadius: 0,
+          boxShadow: "elev-lg",
+        },
+        header: {
+          fontFamily: "heading",
+          fontWeight: 800,
+          fontSize: "20px",
+          color: "text",
+        },
+        overlay: { bg: "rgba(45, 43, 43, 0.5)" },
+        closeButton: { borderRadius: 0, top: 3, insetEnd: 3 },
       },
     },
   },
