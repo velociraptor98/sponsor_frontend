@@ -41,15 +41,15 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 const searchButton = () =>
-  screen.getByRole("button", { name: /Search the register/i });
+  screen.getByRole("button", { name: /^Search$/i });
 
 describe("MainContainer", () => {
-  test("leads with the size of the register on the entry screen", async () => {
+  test("shows the size of the register on the entry screen", async () => {
     render(<MainContainer />);
 
     expect(searchButton()).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByText(/licensed organisations/i)).toBeInTheDocument();
+      expect(screen.getByText(/Licensed organisations/i)).toBeInTheDocument();
     });
     // The one row in the fixture, counted, and broken down by route family.
     expect(screen.getAllByText("1").length).toBeGreaterThan(0);
@@ -61,11 +61,11 @@ describe("MainContainer", () => {
     render(<MainContainer />);
 
     await waitFor(() =>
-      expect(screen.getByText(/licensed organisations/i)).toBeInTheDocument(),
+      expect(screen.getByText(/Licensed organisations/i)).toBeInTheDocument(),
     );
 
     fireEvent.change(
-      screen.getByRole("textbox", { name: /Search the register/i }),
+      screen.getByRole("textbox", { name: /Search sponsors/i }),
       { target: { value: "Test Town" } },
     );
     fireEvent.click(searchButton());
@@ -75,7 +75,7 @@ describe("MainContainer", () => {
     });
     // The entry screen's action is replaced by the results screen.
     expect(
-      screen.queryByRole("button", { name: /Search the register/i }),
+      screen.queryByRole("button", { name: /^Search$/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -83,7 +83,7 @@ describe("MainContainer", () => {
     render(<MainContainer />);
 
     await waitFor(() =>
-      expect(screen.getByText(/licensed organisations/i)).toBeInTheDocument(),
+      expect(screen.getByText(/Licensed organisations/i)).toBeInTheDocument(),
     );
     fireEvent.click(searchButton());
     await waitFor(() =>
@@ -101,7 +101,7 @@ describe("MainContainer", () => {
     render(<MainContainer />);
 
     await waitFor(() =>
-      expect(screen.getByText(/Failed to load/i)).toBeInTheDocument(),
+      expect(screen.getByText(/Couldn't load the list/i)).toBeInTheDocument(),
     );
     expect(screen.getByText(/HTTP 500/i)).toBeInTheDocument();
     expect(parseMock).not.toHaveBeenCalled();

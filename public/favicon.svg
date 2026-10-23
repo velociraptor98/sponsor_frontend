@@ -1,10 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- Reversed on espresso with a clay breath. -->
-  <rect width="32" height="32" rx="7" fill="#2d221a"/>
-  <!-- The line: a short clay stroke, the start of the exhale. -->
-  <path d="M4.5 16h9.5" stroke="#a77455" stroke-width="2.1" stroke-linecap="round"/>
-  <!-- The dots: each smaller and fainter, breath dispersing into air. -->
-  <circle cx="18.6" cy="16" r="1.85" fill="#a77455" fill-opacity="0.85"/>
-  <circle cx="23.4" cy="16" r="1.4"  fill="#a77455" fill-opacity="0.55"/>
-  <circle cx="27.6" cy="16" r="1.05" fill="#a77455" fill-opacity="0.3"/>
+  <rect width="32" height="32" rx="8" fill="#0d1117"/>
+  <circle cx="14.5" cy="14.5" r="6" fill="none" stroke="#c6f36b" stroke-width="2.6"/>
+  <path d="m19 19 5 5" stroke="#c6f36b" stroke-width="2.6" stroke-linecap="round"/>
 </svg>

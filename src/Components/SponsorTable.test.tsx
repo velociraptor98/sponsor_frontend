@@ -65,7 +65,7 @@ describe("SponsorTable", () => {
   test("offers a way out when nothing matches", async () => {
     renderTable("nothing here");
     await waitFor(() =>
-      expect(screen.getByText("Nothing here yet")).toBeInTheDocument(),
+      expect(screen.getByText("No results")).toBeInTheDocument(),
     );
   });
 });

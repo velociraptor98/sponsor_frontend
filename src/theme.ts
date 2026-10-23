@@ -7,78 +7,35 @@ const config: ThemeConfig = {
   useSystemColorMode: false,
 }
 
-/**
- * Modernist.
- *
- * A flat, high-contrast system: warm-grey ground, near-black ink, one loud
- * vermilion accent, and no rounding anywhere. Structure is carried by rules —
- * 2px for major divisions, 1px hairlines inside lists and tables — rather than
- * by shadow or blur. Archivo does all the talking: 800 for headings and
- * buttons, 400/500/600 for body, and a monospaced voice for labels, counts and
- * anything the eye should read as data.
- *
- *   bg        #f3f2f2   the ground
- *   surface   #eae9e9   fields and inset panels
- *   text      #201e1d   ink
- *   accent    #ec3013   vermilion — actions and the current selection
- *   accent-2  #e15b47   secondary accent
- */
+const INK = "#0d1117"
 
-const INK = "#201e1d"
-
-// Tonal ramps, generated in OKLCH on one shared lightness scale, so the same
-// step of any role matches the others in visual value.
-const neutral = {
-  100: "#f8f4f4",
-  200: "#eae7e7",
-  300: "#d7d3d3",
-  400: "#bab6b6",
-  500: "#9b9797",
-  600: "#7d7979",
-  700: "#605d5d",
-  800: "#444141",
-  900: "#2d2b2b",
+const lime = {
+  50: "#f6fde8",
+  100: "#ecfacc",
+  200: "#ddf6a3",
+  300: "#c6f36b",
+  400: "#b2e64a",
+  500: "#96cc2b",
+  600: "#74a31c",
+  700: "#557a17",
+  800: "#3d5a14",
+  900: "#283b10",
 }
 
-const accent = {
-  100: "#fff2ef",
-  200: "#ffe0d9",
-  300: "#ffc4b8",
-  400: "#ff9783",
-  500: "#ff563c",
-  600: "#dd2b0f",
-  700: "#ae1800",
-  800: "#7c1405",
-  900: "#4d170e",
-}
-
-const accent2 = {
-  100: "#fff2ef",
-  200: "#ffe0da",
-  300: "#ffc4b9",
-  400: "#ff9784",
-  500: "#ef6853",
-  600: "#c94b39",
-  700: "#9e3526",
-  800: "#71261b",
-  900: "#471d16",
-}
-
-/** Ink at a given alpha. Every tint in the system is the ink, thinned. */
-const ink = (alpha: number) => `rgba(32, 30, 29, ${alpha})`
-
-// Fields sit on the surface behind a hairline; the search bars that lead a
-// screen get the full 2px ink edge instead. Both are square.
 const fieldStyle = {
-  bg: "surface",
+  bg: "subtle",
   color: "text",
-  borderRadius: 0,
+  borderRadius: "md",
   borderWidth: "1px",
-  borderColor: "divider",
-  caretColor: "var(--chakra-colors-accent)",
-  _hover: { borderColor: "ink-45" },
-  _focusVisible: { borderColor: "accent", boxShadow: "none" },
-  _placeholder: { color: "ink-45" },
+  borderColor: "transparent",
+  transition: "border-color 120ms, background 120ms, box-shadow 120ms",
+  _hover: { bg: "#e8ebef" },
+  _focusVisible: {
+    bg: "surface",
+    borderColor: "text",
+    boxShadow: "0 0 0 3px var(--chakra-colors-lime-200)",
+  },
+  _placeholder: { color: "faint" },
 }
 
 const customTheme = extendTheme({
@@ -90,239 +47,217 @@ const customTheme = extendTheme({
         color: "text",
         fontSize: "15px",
         lineHeight: 1.55,
-        fontWeight: 400,
+        WebkitFontSmoothing: "antialiased",
       },
-      "*::selection": { bg: "accent-200" },
-      // The system's focus ring: the accent, offset, never a glow.
+      "*::selection": { bg: "lime.200" },
       "*:focus-visible": {
-        outline: "2px solid var(--chakra-colors-accent)",
+        outline: "2px solid var(--chakra-colors-text)",
         outlineOffset: "2px",
-        boxShadow: "none !important",
       },
     },
   },
   fonts: {
-    heading: `'Archivo', system-ui, -apple-system, sans-serif`,
-    body: `'Archivo', system-ui, -apple-system, sans-serif`,
-    mono: `ui-monospace, Menlo, Monaco, 'Courier New', monospace`,
+    heading: `'Bricolage Grotesque', system-ui, -apple-system, sans-serif`,
+    body: `'Geist', system-ui, -apple-system, sans-serif`,
+    mono: `'Geist Mono', ui-monospace, Menlo, monospace`,
   },
-  // Nothing in the system is rounded. `full` is kept only so Chakra internals
-  // that assume a pill (the Spinner's track) still render as circles.
   radii: {
-    none: "0",
-    sm: "0",
-    base: "0",
-    md: "0",
-    lg: "0",
-    xl: "0",
-    "2xl": "0",
-    "3xl": "0",
-    full: "9999px",
+    sm: "6px",
+    base: "8px",
+    md: "10px",
+    lg: "14px",
+    xl: "20px",
+    "2xl": "28px",
   },
-  colors: { neutral, accent, "accent-2": accent2 },
+  colors: { lime },
   semanticTokens: {
-    // Single-mode, but kept as semantic tokens so they compile to the
-    // `--chakra-colors-*` custom properties the table library reads.
+    // Kept as semantic tokens so they compile to `--chakra-colors-*` custom
+    // properties that can be referenced from raw CSS strings.
     colors: {
-      bg: "#f3f2f2",
-      surface: "#eae9e9",
+      bg: "#f4f5f7",
+      surface: "#ffffff",
+      subtle: "#eef0f3",
       text: INK,
+      muted: "#5b6270",
+      faint: "#8a909c",
+      border: "#e3e6eb",
+      "border-strong": "#cfd4db",
 
-      // Ink, thinned. `divider` is the system's rule colour; `rule` is the
-      // hairline used between rows inside a block.
-      divider: ink(0.4),
-      rule: ink(0.14),
-      "ink-70": ink(0.7),
-      "ink-60": ink(0.6),
-      "ink-55": ink(0.55),
-      "ink-50": ink(0.5),
-      "ink-45": ink(0.45),
-      "ink-12": ink(0.12),
-      "ink-07": ink(0.07),
-      "ink-04": ink(0.04),
+      accent: "lime.300",
+      "accent-soft": "lime.100",
+      "accent-text": "lime.800",
 
-      accent: "#ec3013",
-      "accent-hover": "accent.600",
-      "accent-active": "accent.700",
-      "accent-2": "#e15b47",
-      "text-on-accent": "#f3f2f2",
-
-      "chakra-body-bg": "#f3f2f2",
+      "chakra-body-bg": "#f4f5f7",
       "chakra-body-text": INK,
-      "chakra-border-color": ink(0.4),
-      "chakra-placeholder-color": ink(0.45),
+      "chakra-border-color": "#e3e6eb",
+      "chakra-placeholder-color": "#8a909c",
     },
     shadows: {
-      "elev-sm": "0 1px 2px rgba(45, 43, 43, 0.14)",
-      "elev-md": "0 3px 10px rgba(45, 43, 43, 0.16)",
-      "elev-lg": "0 12px 32px rgba(45, 43, 43, 0.22)",
+      card: "0 1px 2px rgba(13, 17, 23, 0.04), 0 1px 1px rgba(13, 17, 23, 0.02)",
+      raised:
+        "0 1px 2px rgba(13, 17, 23, 0.06), 0 8px 24px -6px rgba(13, 17, 23, 0.12)",
+      pop: "0 24px 48px -12px rgba(13, 17, 23, 0.25)",
+    },
+  },
+  layerStyles: {
+    card: {
+      bg: "surface",
+      border: "1px solid",
+      borderColor: "border",
+      borderRadius: "lg",
+      boxShadow: "card",
     },
   },
   textStyles: {
-    // The system voice: section labels, kickers, column heads.
-    kicker: {
-      fontFamily: "mono",
-      fontSize: "10px",
-      fontWeight: 600,
-      letterSpacing: "0.14em",
-      textTransform: "uppercase",
-      color: "ink-50",
-    },
-    // Data read as data: counts, ranges, dates, page numbers.
-    data: {
-      fontFamily: "mono",
+    label: {
       fontSize: "12px",
-      color: "ink-55",
+      fontWeight: 600,
+      color: "muted",
     },
-    // The wordmark, at whatever size it is used.
-    wordmark: {
-      fontFamily: "heading",
-      fontWeight: 800,
-      letterSpacing: "-0.02em",
-      lineHeight: 1,
+    num: {
+      fontVariantNumeric: "tabular-nums",
     },
   },
   components: {
     Heading: {
       baseStyle: {
-        fontWeight: 800,
+        fontWeight: 700,
         color: "text",
-        lineHeight: 1.12,
-        letterSpacing: "-0.015em",
+        lineHeight: 1.1,
+        letterSpacing: "-0.025em",
       },
     },
     Button: {
-      // Buttons are set in the heading face at heading weight, matching the
-      // 14px inputs they stand beside in search rows.
       baseStyle: {
-        fontFamily: "heading",
-        fontWeight: 800,
-        borderRadius: 0,
+        fontWeight: 600,
+        borderRadius: "md",
         lineHeight: 1.2,
-        _disabled: { opacity: 0.45 },
+        _disabled: { opacity: 0.4 },
       },
       sizes: {
-        sm: { fontSize: "12px", h: "32px", px: 3 },
-        md: { fontSize: "14px", h: "36px", px: "14px" },
-        lg: { fontSize: "15px", h: "56px", px: 6 },
+        sm: { fontSize: "13px", h: "32px", px: 3 },
+        md: { fontSize: "14px", h: "38px", px: 4 },
+        lg: { fontSize: "15px", h: "48px", px: 6, borderRadius: "md" },
       },
       variants: {
         primary: {
-          bg: "accent",
-          color: "text-on-accent",
-          _hover: { bg: "accent-hover", _disabled: { bg: "accent" } },
-          _active: { bg: "accent-active" },
+          bg: "text",
+          color: "white",
+          _hover: { bg: "#262c36", _disabled: { bg: "text" } },
+          _active: { bg: "#383f4b" },
         },
         secondary: {
-          bg: "transparent",
+          bg: "surface",
           color: "text",
           borderWidth: "1px",
-          borderColor: "divider",
-          _hover: { bg: "ink-07" },
-          _active: { bg: "ink-12" },
+          borderColor: "border",
+          boxShadow: "card",
+          _hover: { bg: "subtle", _disabled: { bg: "surface" } },
+          _active: { bg: "#e5e8ec" },
         },
         ghost: {
-          color: "accent",
-          px: 1,
-          _hover: { bg: "accent.100" },
-          _active: { bg: "accent.200" },
+          color: "muted",
+          _hover: { bg: "subtle", color: "text" },
+          _active: { bg: "#e5e8ec" },
         },
       },
       defaultProps: { variant: "secondary", size: "md" },
     },
     Input: {
       sizes: {
-        md: { field: { h: "36px", fontSize: "14px", px: "10px" } },
+        sm: { field: { h: "32px", fontSize: "13px", px: 3, borderRadius: "base" } },
+        md: { field: { h: "38px", fontSize: "14px", px: 3 } },
         lg: { field: { h: "48px", fontSize: "15px", px: 4 } },
       },
       variants: {
-        outline: { field: fieldStyle },
-        // Leads a screen: the full 2px ink edge, on the ground rather than
-        // the surface, so the rule reads as the frame around the whole row.
-        lead: {
-          field: {
-            ...fieldStyle,
-            bg: "bg",
-            borderWidth: "2px",
-            borderColor: "text",
-            _hover: { borderColor: "text" },
-            _focusVisible: { borderColor: "accent" },
-          },
-        },
-        // Sits inside a 2px frame drawn by its container, so it draws none.
+        filled: { field: fieldStyle },
+        // For inputs inside a container that draws its own frame.
         bare: {
           field: {
-            ...fieldStyle,
-            bg: "bg",
-            borderWidth: 0,
-            _hover: { borderColor: "transparent" },
-            _focusVisible: { borderColor: "transparent" },
+            bg: "transparent",
+            color: "text",
+            border: "none",
+            _placeholder: { color: "faint" },
+            _focusVisible: { outline: "none" },
           },
         },
       },
-      defaultProps: { variant: "outline" },
+      defaultProps: { variant: "filled" },
     },
     Select: {
-      variants: { outline: { field: fieldStyle } },
-      defaultProps: { variant: "outline" },
-    },
-    FormLabel: {
-      baseStyle: {
-        fontFamily: "mono",
-        fontSize: "10px",
-        fontWeight: 600,
-        letterSpacing: "0.14em",
-        textTransform: "uppercase",
-        color: "ink-50",
-        mb: 2,
+      variants: {
+        filled: {
+          field: {
+            ...fieldStyle,
+            bg: "surface",
+            borderColor: "border",
+            _hover: { borderColor: "border-strong" },
+          },
+        },
       },
+      defaultProps: { variant: "filled" },
     },
     Tag: {
       baseStyle: {
         container: {
-          borderRadius: 0,
-          fontSize: "11px",
+          borderRadius: "full",
+          fontSize: "12px",
           fontWeight: 500,
-          letterSpacing: "0.02em",
           px: "10px",
-          py: "3px",
+          py: "4px",
           minH: "auto",
         },
       },
       variants: {
-        accent: { container: { bg: "accent.100", color: "accent.800" } },
-        "accent-2": {
-          container: { bg: "accent-2.100", color: "accent-2.800" },
-        },
-        neutral: { container: { bg: "neutral.100", color: "neutral.800" } },
-        outline: {
+        chip: {
           container: {
-            bg: "transparent",
-            color: "accent",
+            bg: "surface",
+            color: "text",
             border: "1px solid",
-            borderColor: "accent",
-            boxShadow: "none",
+            borderColor: "border",
+            transition: "all 120ms",
+            _hover: { borderColor: "text" },
+          },
+        },
+        selected: {
+          container: { bg: "text", color: "white" },
+        },
+        ratingA: {
+          container: {
+            bg: "#e3f5e8",
+            color: "#17633a",
+            fontWeight: 600,
+            px: "8px",
+            py: "2px",
+          },
+        },
+        ratingB: {
+          container: {
+            bg: "#fdf0d3",
+            color: "#8a5300",
+            fontWeight: 600,
+            px: "8px",
+            py: "2px",
           },
         },
       },
-      defaultProps: { variant: "neutral" },
+      defaultProps: { variant: "chip" },
     },
     Modal: {
       baseStyle: {
         dialog: {
           bg: "surface",
           color: "text",
-          borderRadius: 0,
-          boxShadow: "elev-lg",
+          borderRadius: "xl",
+          boxShadow: "pop",
         },
         header: {
           fontFamily: "heading",
-          fontWeight: 800,
+          fontWeight: 700,
           fontSize: "20px",
-          color: "text",
         },
-        overlay: { bg: "rgba(45, 43, 43, 0.5)" },
-        closeButton: { borderRadius: 0, top: 3, insetEnd: 3 },
+        overlay: { bg: "rgba(13, 17, 23, 0.45)", backdropFilter: "blur(4px)" },
+        closeButton: { top: 3, insetEnd: 3 },
       },
     },
   },

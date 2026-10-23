@@ -17,30 +17,18 @@ import Papa from "papaparse";
 import Navbar from "./Navbar";
 import Hero from "./Hero";
 import SponsorTable from "./SponsorTable";
-import { ArrowLeftMark, WarningMark } from "./Icons";
+import { ArrowLeftMark, SearchMark, WarningMark } from "./Icons";
 import { type Sponsor, tally, tallyMany, toSponsors } from "../register";
-
-/**
- * Owns the register and which of the two screens is showing.
- *
- * The entry screen leads with the size of the register, so the file is read as
- * soon as the app mounts rather than behind a button — the parse runs in a
- * worker, so the screen stays live throughout and the counts simply arrive.
- * Searching from the entry screen hands the query to the results screen, which
- * holds the facets.
- */
 
 const formatUpdated = (header: string | null) => {
   if (!header) return "";
   const date = new Date(header);
   if (Number.isNaN(date.getTime())) return "";
-  return date
-    .toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    })
-    .toUpperCase();
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 };
 
 const MainContainer = () => {
@@ -132,23 +120,44 @@ const MainContainer = () => {
       <Navbar
         slot={
           showResults ? (
-            <Flex align="center" gap={3} flex="1">
-              <Flex border="2px solid" borderColor="text" flex="1" minW={0}>
+            <Flex align="center" gap={2} flex="1">
+              <Flex
+                align="center"
+                gap={2}
+                flex="1"
+                minW={0}
+                maxW="560px"
+                pl={3}
+                bg="subtle"
+                borderRadius="md"
+                border="1px solid"
+                borderColor="transparent"
+                _focusWithin={{
+                  bg: "surface",
+                  borderColor: "text",
+                  boxShadow: "0 0 0 3px var(--chakra-colors-lime-200)",
+                }}
+              >
+                <Box color="faint">
+                  <SearchMark size={16} />
+                </Box>
                 <Input
                   variant="bare"
                   h="38px"
+                  px={1}
                   fontSize="14px"
-                  placeholder="Organisation, town or county"
-                  aria-label="Search the register"
+                  placeholder="Company, town or county"
+                  aria-label="Search sponsors"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                 />
               </Flex>
               <Button
-                size="sm"
-                leftIcon={<ArrowLeftMark size={13} />}
+                variant="ghost"
+                leftIcon={<ArrowLeftMark size={15} />}
                 onClick={() => setShowResults(false)}
                 flexShrink={0}
+                ml="auto"
               >
                 Start over
               </Button>
@@ -180,19 +189,28 @@ const MainContainer = () => {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader display="flex" alignItems="center" gap={3}>
-            <Box as="span" color="accent">
-              <WarningMark size={20} />
-            </Box>
-            Failed to load
+            <Flex
+              as="span"
+              align="center"
+              justify="center"
+              w="36px"
+              h="36px"
+              borderRadius="md"
+              bg="#fdecea"
+              color="#c4321c"
+            >
+              <WarningMark size={18} />
+            </Flex>
+            Couldn't load the list
           </ModalHeader>
           <ModalBody>
-            <Text fontSize="14px" color="ink-70">
+            <Text fontSize="14px" color="muted">
               {errorMessage}
             </Text>
           </ModalBody>
           <ModalFooter gap={2}>
             <Button variant="primary" onClick={onErrorClose}>
-              Dismiss
+              Close
             </Button>
           </ModalFooter>
         </ModalContent>

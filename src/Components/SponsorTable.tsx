@@ -16,7 +16,7 @@ import FilterRail, {
   type Filters,
   hasFilters,
 } from "./FilterRail";
-import { CloseMark } from "./Icons";
+import { CloseMark, DownloadMark, FilterMark } from "./Icons";
 import {
   type Sponsor,
   formatCount,
@@ -150,7 +150,7 @@ const SponsorTable = ({ sponsors, query, isLoading }: SponsorTableProps) => {
 
   const subline = [
     filters.routes.length ? filters.routes.join(" · ") : "All routes",
-    filters.rating ? `${filters.rating}-rated` : "A-rated and B-rated",
+    filters.rating ? `${filters.rating} rating` : "A and B ratings",
   ].join(" · ");
 
   const download = () => {
@@ -163,39 +163,58 @@ const SponsorTable = ({ sponsors, query, isLoading }: SponsorTableProps) => {
     URL.revokeObjectURL(url);
   };
 
-  return (
-    <Grid templateColumns={{ base: "1fr", lg: "246px 1fr" }} flex="1" minH={0}>
-      {/* On narrow screens the rail folds away behind the toolbar below. */}
-      {(!isMobile || railOpen) && (
-        <FilterRail
-          towns={townFacets}
-          routes={routeFacets}
-          filters={filters}
-          onChange={setFilters}
-        />
-      )}
+  const cell = {
+    px: 4,
+    py: "11px",
+    borderBottom: "1px solid",
+    borderColor: "border",
+  };
 
-      <Box minW={0}>
-        {/* Toolbar — mobile only: the selection, and the way back to it. */}
-        {isMobile && (
-        <Flex
-          align="center"
-          gap={2}
-          px={4}
-          py={3}
-          borderBottom="2px solid"
-          borderColor="divider"
-          overflowX="auto"
-        >
-          <Button size="sm" onClick={() => setRailOpen((open) => !open)}>
+  const filterCount =
+    filters.towns.length + filters.routes.length + (filters.rating ? 1 : 0);
+
+  return (
+    <Grid
+      templateColumns={{ base: "1fr", lg: "260px minmax(0, 1fr)" }}
+      gap={{ base: 3, lg: 6 }}
+      flex="1"
+      minH={0}
+      w="100%"
+      maxW="1440px"
+      mx="auto"
+      px={{ base: 4, md: 6 }}
+      py={{ base: 4, md: 6 }}
+    >
+      {isMobile && (
+        <Flex align="center" gap={2} overflowX="auto">
+          <Button
+            size="sm"
+            leftIcon={<FilterMark size={14} />}
+            onClick={() => setRailOpen((open) => !open)}
+            flexShrink={0}
+          >
             {railOpen ? "Hide filters" : "Filters"}
+            {filterCount > 0 && (
+              <Box
+                as="span"
+                ml={2}
+                px="6px"
+                borderRadius="full"
+                bg="text"
+                color="accent"
+                fontSize="11px"
+                lineHeight="18px"
+              >
+                {filterCount}
+              </Box>
+            )}
           </Button>
           {filters.towns.map((town) => (
             <Tag
               key={town}
               as="button"
               type="button"
-              variant="accent"
+              variant="selected"
               flexShrink={0}
               gap="6px"
               onClick={() =>
@@ -210,98 +229,125 @@ const SponsorTable = ({ sponsors, query, isLoading }: SponsorTableProps) => {
             </Tag>
           ))}
           {filters.rating && (
-            <Tag variant="accent" flexShrink={0}>
+            <Tag variant="selected" flexShrink={0}>
               {filters.rating} rating
             </Tag>
           )}
         </Flex>
-        )}
+      )}
 
-        {/* Results header */}
+      {/* On narrow screens the rail folds away behind the toolbar above. */}
+      {(!isMobile || railOpen) && (
+        <FilterRail
+          towns={townFacets}
+          routes={routeFacets}
+          filters={filters}
+          onChange={setFilters}
+        />
+      )}
+
+      <Box minW={0}>
         <Flex
-          align={{ base: "flex-start", md: "baseline" }}
+          align={{ base: "flex-start", md: "flex-end" }}
           direction={{ base: "column", md: "row" }}
           justify="space-between"
           gap={3}
-          px={{ base: 4, md: 6 }}
-          py={4}
-          borderBottom="2px solid"
-          borderColor="divider"
+          mb={4}
         >
-          <Box>
-            <Heading as="h2" fontSize={{ base: "20px", md: "26px" }}>
+          <Box minW={0}>
+            <Heading
+              as="h2"
+              fontSize={{ base: "22px", md: "28px" }}
+              letterSpacing="-0.03em"
+            >
               {isLoading && total === 0
-                ? "Reading the register…"
+                ? "Loading sponsors…"
                 : `${formatCount(total)} sponsor${total === 1 ? "" : "s"}${where}`}
             </Heading>
-            <Text fontSize="12px" color="ink-60" mt={1}>
+            <Text fontSize="13px" color="muted" mt={1}>
               {subline}
             </Text>
           </Box>
 
-          <HStack spacing={3} flexShrink={0}>
-            <HStack spacing={2}>
-              <Text textStyle="kicker">Sort</Text>
-              <Select
-                size="sm"
-                h="32px"
-                fontSize="12px"
-                w="auto"
-                value={sort}
-                onChange={(event) => setSort(event.target.value as SortKey)}
-                aria-label="Sort results"
-              >
-                {Object.entries(SORTS).map(([key, option]) => (
-                  <option key={key} value={key}>
-                    {option.label}
-                  </option>
-                ))}
-              </Select>
-            </HStack>
-            <Button size="sm" onClick={download} isDisabled={total === 0}>
-              Download CSV
+          <HStack spacing={2} flexShrink={0}>
+            <Select
+              size="sm"
+              h="32px"
+              fontSize="13px"
+              w="auto"
+              value={sort}
+              onChange={(event) => setSort(event.target.value as SortKey)}
+              aria-label="Sort results"
+            >
+              {Object.entries(SORTS).map(([key, option]) => (
+                <option key={key} value={key}>
+                  Sort: {option.label}
+                </option>
+              ))}
+            </Select>
+            <Button
+              size="sm"
+              leftIcon={<DownloadMark size={14} />}
+              onClick={download}
+              isDisabled={total === 0}
+            >
+              CSV
             </Button>
           </HStack>
         </Flex>
 
         {total === 0 ? (
-          <Flex direction="column" align="center" gap={4} px={6} py={20}>
-            <Text textStyle="kicker">No matches</Text>
+          <Flex
+            layerStyle="card"
+            direction="column"
+            align="center"
+            gap={2}
+            px={6}
+            py={20}
+          >
             <Heading as="p" fontSize="20px" textAlign="center">
-              {isLoading ? "Still reading the register" : "Nothing here yet"}
+              {isLoading ? "Still loading" : "No results"}
             </Heading>
-            <Text fontSize="14px" color="ink-60" textAlign="center" maxW="44ch">
+            <Text fontSize="14px" color="muted" textAlign="center" maxW="40ch">
               {isLoading
-                ? "The full register is still loading — results will appear as soon as it lands."
-                : "No sponsor matches this search and these filters. Try a wider town, or clear the filters."}
+                ? "Results will show once the list has loaded."
+                : "Try a different search or remove some filters."}
             </Text>
             {hasFilters(filters) && (
-              <Button variant="ghost" onClick={() => setFilters(EMPTY_FILTERS)}>
-                Clear all filters
+              <Button mt={3} onClick={() => setFilters(EMPTY_FILTERS)}>
+                Clear filters
               </Button>
             )}
           </Flex>
         ) : isMobile ? (
-          /* 1h — the register as a list, one line of metadata per row. */
-          <Box>
-            {mobileRows.map((sponsor) => (
+          <Box layerStyle="card" overflow="hidden">
+            {mobileRows.map((sponsor, i) => (
               <Box
                 key={sponsor.id}
                 px={4}
                 py={3}
-                borderTop="1px solid"
-                borderColor="rule"
+                borderTop={i === 0 ? "none" : "1px solid"}
+                borderColor="border"
               >
-                <Text fontWeight={600} fontSize="15px">
-                  {sponsor.org}
-                </Text>
-                <Text fontSize="12px" color="ink-60" mt="2px">
+                <Flex justify="space-between" align="flex-start" gap={3}>
+                  <Text fontWeight={600} fontSize="15px" lineHeight={1.35}>
+                    {sponsor.org}
+                  </Text>
+                  {sponsor.rating && (
+                    <Tag
+                      variant={sponsor.rating === "A" ? "ratingA" : "ratingB"}
+                      flexShrink={0}
+                    >
+                      {sponsor.rating}
+                    </Tag>
+                  )}
+                </Flex>
+                <Text fontSize="13px" color="muted" mt="2px">
                   {[
                     sponsor.town,
                     sponsor.routes.length > 1
                       ? `${sponsor.routes.length} routes`
                       : sponsor.routes[0],
-                    sponsor.rating && `${sponsor.rating} rating`,
                   ]
                     .filter(Boolean)
                     .join(" · ")}
@@ -309,111 +355,119 @@ const SponsorTable = ({ sponsors, query, isLoading }: SponsorTableProps) => {
               </Box>
             ))}
             {mobileCount < total && (
-              <Box p={4} borderTop="2px solid" borderColor="divider">
+              <Box p={3} borderTop="1px solid" borderColor="border">
                 <Button
                   w="full"
-                  h="48px"
-                  justifyContent="flex-start"
+                  h="44px"
+                  variant="ghost"
+                  color="text"
                   onClick={() => setMobileCount((n) => n + MOBILE_STEP)}
                 >
-                  Load {Math.min(MOBILE_STEP, total - mobileCount)} more
+                  Show {Math.min(MOBILE_STEP, total - mobileCount)} more
                 </Button>
               </Box>
             )}
           </Box>
         ) : (
-          /* 1c — the dense table. */
-          <Box overflowX="auto">
-            <Box as="table" w="100%" sx={{ borderCollapse: "collapse" }} fontSize="13px">
-              <Box as="thead">
-                <Box as="tr">
-                  {COLUMNS.map((column) => (
+          <Box layerStyle="card" overflow="hidden">
+            <Box overflowX="auto">
+              <Box
+                as="table"
+                w="100%"
+                sx={{ borderCollapse: "collapse" }}
+                fontSize="14px"
+              >
+                <Box as="thead" bg="subtle">
+                  <Box as="tr">
+                    {COLUMNS.map((column) => (
+                      <Box
+                        as="th"
+                        key={column}
+                        {...cell}
+                        py="9px"
+                        textAlign="left"
+                        fontSize="12px"
+                        fontWeight={600}
+                        color="muted"
+                        whiteSpace="nowrap"
+                      >
+                        {column}
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+                <Box as="tbody">
+                  {pageRows.map((sponsor) => (
                     <Box
-                      as="th"
-                      key={column}
-                      textAlign="left"
-                      textStyle="kicker"
-                      fontSize="11px"
-                      letterSpacing="0.08em"
-                      color="ink-60"
-                      px={2}
-                      py={2}
-                      borderBottom="2px solid"
-                      borderColor="divider"
+                      as="tr"
+                      key={sponsor.id}
+                      transition="background 80ms"
+                      _hover={{ bg: "#f8f9fa" }}
                     >
-                      {column}
+                      <Box as="td" {...cell} fontWeight={600}>
+                        {sponsor.org}
+                      </Box>
+                      <Box as="td" {...cell} color="muted">
+                        {sponsor.town}
+                      </Box>
+                      <Box as="td" {...cell} color="muted">
+                        {sponsor.county}
+                      </Box>
+                      <Box as="td" {...cell} color="muted">
+                        {sponsor.routes.map(shortRoute).join(" · ")}
+                      </Box>
+                      <Box as="td" {...cell}>
+                        {sponsor.rating ? (
+                          <Tag
+                            variant={sponsor.rating === "A" ? "ratingA" : "ratingB"}
+                          >
+                            {sponsor.rating}
+                          </Tag>
+                        ) : (
+                          <Text as="span" color="faint">
+                            –
+                          </Text>
+                        )}
+                      </Box>
                     </Box>
                   ))}
                 </Box>
               </Box>
-              <Box as="tbody">
-                {pageRows.map((sponsor) => (
-                  <Box as="tr" key={sponsor.id} _hover={{ bg: "ink-04" }}>
-                    <Box as="td" px={2} py={2} borderBottom="1px solid" borderColor="rule" fontWeight={600}>
-                      {sponsor.org}
-                    </Box>
-                    <Box as="td" px={2} py={2} borderBottom="1px solid" borderColor="rule">
-                      {sponsor.town}
-                    </Box>
-                    <Box as="td" px={2} py={2} borderBottom="1px solid" borderColor="rule">
-                      {sponsor.county}
-                    </Box>
-                    <Box as="td" px={2} py={2} borderBottom="1px solid" borderColor="rule">
-                      {sponsor.routes.map(shortRoute).join(" · ")}
-                    </Box>
-                    <Box as="td" px={2} py={2} borderBottom="1px solid" borderColor="rule">
-                      {sponsor.rating ? (
-                        <Tag variant={sponsor.rating === "A" ? "neutral" : "accent"}>
-                          {sponsor.rating}
-                        </Tag>
-                      ) : (
-                        <Text as="span" color="ink-45">
-                          —
-                        </Text>
-                      )}
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
             </Box>
 
-            {/* Pagination */}
             <Flex
               align="center"
               justify="space-between"
               gap={4}
-              px={6}
-              py={4}
-              borderTop="2px solid"
-              borderColor="divider"
+              px={4}
+              py={3}
               flexWrap="wrap"
+              fontSize="13px"
+              color="muted"
             >
               <HStack spacing={4}>
-                <Text fontFamily="mono" fontSize="11px" color="ink-55">
-                  {formatCount(rangeStart)}–{formatCount(rangeEnd)} OF{" "}
+                <Text textStyle="num">
+                  {formatCount(rangeStart)}–{formatCount(rangeEnd)} of{" "}
                   {formatCount(total)}
                 </Text>
-                <HStack spacing={2}>
-                  <Text textStyle="kicker">Rows</Text>
-                  <Select
-                    size="sm"
-                    h="28px"
-                    fontSize="12px"
-                    w="auto"
-                    value={pageSize}
-                    onChange={(event) => setPageSize(Number(event.target.value))}
-                    aria-label="Rows per page"
-                  >
-                    {PAGE_SIZE_OPTIONS.map((size) => (
-                      <option key={size} value={size}>
-                        {size}
-                      </option>
-                    ))}
-                  </Select>
-                </HStack>
+                <Select
+                  size="sm"
+                  h="30px"
+                  fontSize="13px"
+                  w="auto"
+                  value={pageSize}
+                  onChange={(event) => setPageSize(Number(event.target.value))}
+                  aria-label="Rows per page"
+                >
+                  {PAGE_SIZE_OPTIONS.map((size) => (
+                    <option key={size} value={size}>
+                      {size} per page
+                    </option>
+                  ))}
+                </Select>
               </HStack>
 
-              <HStack spacing={1}>
+              <HStack spacing={2}>
                 <Button
                   size="sm"
                   isDisabled={currentPage === 0}
@@ -421,7 +475,7 @@ const SponsorTable = ({ sponsors, query, isLoading }: SponsorTableProps) => {
                 >
                   Previous
                 </Button>
-                <Text fontFamily="mono" fontSize="12px" px={2} color="ink-55">
+                <Text textStyle="num" px={1}>
                   {formatCount(currentPage + 1)} / {formatCount(totalPages)}
                 </Text>
                 <Button
